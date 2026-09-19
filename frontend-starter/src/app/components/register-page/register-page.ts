@@ -1,15 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../shared/services/auth.service';
 import { httpErrorMessage } from '../../shared/utils/http-error-message';
-
-/** The backend trims the name before checking its minimum length, so we do the same. */
-const trimmedMinLength =
-  (min: number): ValidatorFn =>
-  (control) =>
-    String(control.value ?? '').trim().length >= min ? null : { trimmedMinLength: { min } };
+import { trimmedMinLength } from '../../shared/validators/trimmed-min-length';
 
 @Component({
   imports: [ReactiveFormsModule, RouterLink],
