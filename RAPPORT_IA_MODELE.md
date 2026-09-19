@@ -6,7 +6,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 
 - Assistant : Claude Code, extension VS Code (agent de projet : lit les fichiers du dépôt et lance des commandes dans le terminal).
 - Modèle : Claude Sonnet 5.
-- Consommation de tokens : à compléter (à relever dans l'outil).
+- Consommation de tokens : non relevée ; elle se consulte dans l'outil (indicateur de contexte, page d'utilisation du compte).
 - Travail réalisé seul pour l'instant (pas encore de binôme).
 
 ## Mission 0 — Cartographier l'application
@@ -195,7 +195,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 - Contrôle visuel de la page profil. Aucun jeton ni mot de passe dans la console.
 - Limite : le test de l'étape 3b (jeton limité à `/api`) repose sur un crochet temporaire retiré ; il n'a pas été rejoué, l'intercepteur n'ayant pas changé depuis.
 
-**Erreurs ou propositions rejetées.** Le test de l'étape 3 a planté sur le bouton supprimé (voir ci-dessus). Un compte de test a été créé dans MongoDB Atlas pour les vérifications automatisées et devra être supprimé.
+**Erreurs ou propositions rejetées.** Le test de l'étape 3 a planté sur le bouton supprimé (voir ci-dessus). Un compte de test a été créé dans MongoDB Atlas pour les vérifications automatisées ; il a été supprimé à la clôture de la mission.
 
 **Fichiers effectivement modifiés.** `profile-page.ts` et `.html`, `styles.css` (classe `.success`), `register-page.ts` (validateur déplacé). Créé : `shared/validators/trimmed-min-length.ts`. Le backend n'est pas modifié.
 
@@ -219,7 +219,8 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 - Références de lignes de `mission1.md` revérifiées par recherche dans le code après les modifications.
 - En-tête de même hauteur (69,6 px) connecté et déconnecté ; messages d'erreur collés à leur champ (contrôle visuel).
 - Non-régression : 81 vérifications automatisées sur 81 (étapes 1 à 4). Recherche de secrets dans les nouveaux documents : aucun.
-- Limites : les lignes de journal du backend citées dans `mission1.md` sont déduites du code et n'ont pas été relues dans mon terminal ; la consommation de tokens n'a pas été relevée.
+- Les lignes de journal du backend citées dans `mission1.md` ont été relevées sur un second backend lancé pour l'occasion (port 3001) lors d'un envoi de fichier ; l'ordre réel des lignes `[multer]` a corrigé celui que j'avais déduit du code.
+- Nettoyage des données de test : compte de test, ses 3 pistes et ses 3 fichiers audio supprimés (comptes restants : 2, pistes : 0). La consommation de tokens n'a pas été relevée.
 
 **Erreurs ou propositions rejetées.** Aucune.
 

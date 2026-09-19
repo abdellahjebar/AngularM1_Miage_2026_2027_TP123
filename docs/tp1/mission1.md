@@ -40,12 +40,19 @@ Non utilisées par le frontend : `GET /api/health` (vérification manuelle) et `
 
 ## Préparation : où se trouvent les traces du backend ?
 
-Dans le **terminal où le backend a été lancé** (`cd backend`, `npm start`) : le serveur écrit ses journaux avec `console.log`, `console.warn` et `console.error`. D'après le code, l'envoi d'un fichier audio produit notamment :
+Dans le **terminal où le backend a été lancé** (`cd backend`, `npm start`) : le serveur écrit ses journaux avec `console.log`, `console.warn` et `console.error`. Relevé réel lors de l'envoi de `song1.mp3` (identifiants remplacés par `<id>`) :
 
-- `[auth] Token accepté pour <id>` (`app.js:71`) ;
-- `[multer] Nom de stockage généré pour song1.mp3` (`app.js:96`) et `[multer] Type accepté : audio/mpeg` (`app.js:112`) ;
-- `[tracks] Upload enregistré : <id>` (`app.js:354`) ;
-- `[http] POST /api/tracks -> 201 (… ms)` (`app.js:136`), écrite en dernier, à la fin de la réponse.
+```text
+[auth] Token accepté pour <id>                          (app.js:71)
+[multer] Type accepté : audio/mpeg                      (app.js:112)
+[multer] Destination sélectionnée : …\backend\data\uploads   (app.js:90)
+[multer] Nom de stockage généré pour song1.mp3          (app.js:96)
+[tracks] Upload enregistré : <id>                       (app.js:354)
+[track-model] Préparation de la piste publique <id>     (Track.js:33)
+[http] POST /api/tracks -> 201 (75 ms)                  (app.js:136)
+```
+
+La ligne `[http]` est écrite en dernier, à la fin de la réponse. Ces lignes ne contiennent ni mot de passe ni jeton.
 
 Relevé côté navigateur (onglet Network, filtre Fetch/XHR) lors de l'envoi des deux fichiers de `fichiers-audio-de-test/` puis de la lecture de l'un d'eux :
 
