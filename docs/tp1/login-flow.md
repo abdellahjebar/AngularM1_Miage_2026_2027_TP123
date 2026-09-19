@@ -1,5 +1,7 @@
 # TP1 — Flux d'un clic sur « Se connecter »
 
+> Schéma du code fourni (commit `3d1080c`) : les numéros de ligne correspondent à cet état initial, avant les modifications de la Mission 1. Depuis, la page de connexion valide le formulaire, un second intercepteur gère les réponses `401`, et l'intercepteur du jeton ne s'applique plus qu'aux URL commençant par `/api/`. La requête de connexion, dont l'URL commence par `/api/`, continue de porter un jeton déjà enregistré.
+
 Chemin complet, du clic à la redirection. Chaque étape est numérotée et référence le fichier et la ligne concernés.
 
 ```mermaid

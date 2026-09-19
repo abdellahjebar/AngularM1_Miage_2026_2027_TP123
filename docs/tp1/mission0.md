@@ -1,5 +1,7 @@
 # TP1 — Mission 0 : cartographie de l'application
 
+> Ce document décrit le code fourni (commit `3d1080c`) : les numéros de ligne et la description de l'intercepteur correspondent à cet état initial. La Mission 1 a ensuite modifié plusieurs fichiers (voir `RAPPORT_IA_MODELE.md`), notamment `main.ts`, `auth.service.ts`, `auth.interceptor.ts`, les pages et l'ajout d'un second intercepteur.
+
 ## 1. Éléments retrouvés (frontend)
 
 | Élément | Fichier : ligne | Rôle (une phrase) |

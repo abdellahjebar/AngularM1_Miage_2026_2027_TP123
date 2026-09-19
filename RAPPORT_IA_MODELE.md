@@ -205,3 +205,31 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 - Où s'effectue « la mise à jour du profil » : fichiers côté front (`profile-page.html`, `profile-page.ts`, `auth.service.ts`, intercepteur) et côté back (`app.js` route `PUT /api/users/me`, middleware `auth`, modèle `User`).
 - Pourquoi le profil se recharge à chaque ouverture de la page alors que `currentUser` est perdu à l'actualisation.
 - Pourquoi la validation côté frontend n'est pas suffisante et ne remplace pas celle du backend.
+
+### Clôture de la Mission 1
+
+**Objectif.** Terminer les livrables du TP1 : questions du sujet, explication Signal / `localStorage`, envoi de fichiers audio avec les traces du backend, mise en forme, mise à jour d'`AGENTS.md`.
+
+**Prompts.** Message demandant de tout terminer (« go and do allat… »), après l'approbation des commits et des captures d'écran fournies.
+
+**Plan proposé par l'agent.** Committer le relevé Network ; restaurer le nom du compte de démonstration ; tester l'envoi des deux fichiers audio ; rédiger `mission1.md` et `signal-vs-localstorage.md` à partir du code ; corriger l'espacement des messages d'erreur et la hauteur de l'en-tête ; mettre à jour `AGENTS.md` (journal, arborescence, flux).
+
+**Vérifications réalisées.**
+- Envoi de `song1.mp3` et `song2.mp3` par l'interface (compte de test) : deux `POST /api/tracks` en `201` (multipart, `Authorization` présent), liste rechargée, lecture en `200` `audio/mpeg`.
+- Références de lignes de `mission1.md` revérifiées par recherche dans le code après les modifications.
+- En-tête de même hauteur (69,6 px) connecté et déconnecté ; messages d'erreur collés à leur champ (contrôle visuel).
+- Non-régression : 81 vérifications automatisées sur 81 (étapes 1 à 4). Recherche de secrets dans les nouveaux documents : aucun.
+- Limites : les lignes de journal du backend citées dans `mission1.md` sont déduites du code et n'ont pas été relues dans mon terminal ; la consommation de tokens n'a pas été relevée.
+
+**Erreurs ou propositions rejetées.** Aucune.
+
+**Fichiers effectivement modifiés.** Créés : `docs/tp1/mission1.md`, `docs/tp1/signal-vs-localstorage.md`, `docs/tp1/checkpoint.md`. Modifiés : `styles.css`, `AGENTS.md`, notes de contexte en tête de `mission0.md` et `login-flow.md`. Le backend n'est pas modifié.
+
+**Preuve de fonctionnement.** Commits `7cd9fdb` (relevé Network et captures), `f1181da` (mise en forme) et le commit de documentation qui contient ce texte.
+
+**Note sur l'usage de l'IA.** `mission1.md` et `signal-vs-localstorage.md` ont été rédigés par l'assistant à partir du code, pour gagner du temps. Je dois les relire et m'en approprier le contenu avant de les défendre à l'oral.
+
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer : quiz oral sur toutes les étapes de la Mission 1, restant à faire)*
+- Répondre aux questions du sujet sans les notes : routes utilisées, chemin de la mise à jour du profil.
+- Expliquer la différence entre Signal et `localStorage` et leur usage combiné.
+- Où voir les traces du backend et quelles lignes apparaissent lors d'un envoi.

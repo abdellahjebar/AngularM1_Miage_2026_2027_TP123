@@ -8,12 +8,12 @@ Guitar Practice Cloud est l'espace cloud d'une application de travail de la guit
 
 ## Architecture et flux
 ```text
-composant → service → HttpClient (+ authInterceptor) → /api
+composant → service → HttpClient (+ authInterceptor, errorInterceptor) → /api
   → proxy de dev (:4200 → :3000) → Express (cors, json, auth)
   → modèle Mongoose → MongoDB Atlas      (fichiers audio : disque, data/uploads)
 ```
 - Angular ne dialogue jamais directement avec MongoDB.
-- Authentification : JWT valable 2 h, envoyé dans `Authorization: Bearer <jeton>` ; côté Angular il est conservé dans le Signal `token` et dans `localStorage` (`gpc_token`).
+- Authentification : JWT valable 2 h, envoyé dans `Authorization: Bearer <jeton>` ; côté Angular il est conservé dans le Signal `token` et dans `localStorage` (`gpc_token`), et n'est joint qu'aux requêtes `/api/`. Une réponse `401` hors `/api/auth/` déconnecte et renvoie vers `/login`.
 - Routes publiques : `/health`, `/auth/register`, `/auth/login`. Les autres exigent le jeton. Détail : `API_CONTRACT.md`.
 - Flux de connexion annoté : `docs/tp1/login-flow.md`. Cartographie : `docs/tp1/mission0.md`.
 
@@ -24,13 +24,13 @@ frontend-starter/        Angular 22 (composants standalone, Signals, Reactive Fo
   src/main.ts            bootstrap, provideRouter, provideHttpClient(withInterceptors)
   src/app/routes.ts      routes ; profile et tracks protégées par authGuard
   src/app/components/    app, login-page, register-page, profile-page, tracks-page
-  src/app/shared/        services/, interceptors/, guards/, models/
+  src/app/shared/        services/, interceptors/ (auth, error), guards/, models/, utils/, validators/
 backend/                 Node ESM, Express 5, Mongoose 9, Multer, JWT, bcryptjs
   src/server.js          connexion Mongo, compte de démonstration, écoute du port
   src/app.js             createApp() : middlewares, routes, gestionnaire d'erreurs
   src/models/            User.js, Track.js
   test/api.test.js       tests de santé et de schémas
-docs/tp1/                livrables du TP1 (cartographie, schéma du flux)
+docs/tp1/                livrables du TP1 (cartographie, flux, checkpoint, questions, captures)
 ```
 Documents à la racine : `README.md`, `API_CONTRACT.md`, `ATLAS_SETUP.md`, `SUJET_ETUDIANT_TP1.md` (et TP2, TP3), `RAPPORT_IA_MODELE.md`, `CONSEILS_POUR_UTIISER_ASSISTANT_AI.md`.
 
@@ -68,9 +68,9 @@ Sources : les `AGENTS.md` et `best-practices.md` du frontend et du backend.
 ## Journal des missions
 | Mission | Statut | Traces |
 |---|---|---|
-| Préparation (Atlas, démarrage, santé) | fait | — |
-| 0 — Cartographie (TP1) | fait, rapport en cours | commit `7b8adb3`, `docs/tp1/` ; capture et prompts à ajouter au rapport |
-| 1 — Inscription, connexion, profil (TP1) | à faire | messages de validation, bouton de déconnexion, gestion du 401 ; branche `tp1-auth` |
+| Préparation (Atlas, démarrage, santé, envoi de fichiers) | fait | — |
+| 0 — Cartographie (TP1) | fait | `7b8adb3`, `docs/tp1/mission0.md`, `login-flow.md` |
+| 1 — Inscription, connexion, profil (TP1) | fait | branche `tp1-auth` : `ce12aff`, `35034e3`, `68af9e8`, `51e4cc2`, `238ce7b`, `bcc89e9` ; `docs/tp1/checkpoint.md`, `mission1.md`, `signal-vs-localstorage.md` |
 | 2 — Bibliothèque paginée (TP2) | à faire | |
 | 3 — Upload et lecture (TP2) | à faire | |
 | 5, 6, 7 — Suppression, progression, tests (TP3) | à faire | |
