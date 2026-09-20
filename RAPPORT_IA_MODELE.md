@@ -103,7 +103,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 **Preuve de fonctionnement.** Commit `7b8adb3` (cartographie et schéma du flux) et commit `831e597` (`AGENTS.md` et `CLAUDE.md`). Capture de la requête de connexion dans les DevTools (un jeton était déjà enregistré : l'en-tête `Authorization` est présent, sa valeur est masquée) :
   ![Requête de connexion, statut 200](docs/tp1/img/login-200.png)
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer après un auto-test à voix haute)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Le trajet complet d'un clic sur « Se connecter » : composant, `AuthService`, intercepteur, proxy, Express, modèle, MongoDB, puis retour, stockage du jeton et redirection.
 - Pourquoi le composant ne fait jamais d'appel HTTP direct et passe par le service.
 - Ce que fait l'intercepteur et pourquoi il ajoute le jeton à toutes les requêtes, y compris celle de connexion.
@@ -138,7 +138,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
   ![Connexion refusée en 401](docs/tp1/img/step1-04-mauvais-mot-de-passe-401.png)
 - État initial de la page de connexion (avant toute action) : `docs/tp1/img/step1-01-connexion-etat-initial.png`.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi `if (this.submitting()) return;` est nécessaire en plus du bouton désactivé.
 - Pourquoi le template écrit `errors['required']` (signature d'index et `noPropertyAccessFromIndexSignature`).
 - Pourquoi les journaux d'erreur n'affichent que le statut.
@@ -163,7 +163,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 **Fichiers effectivement modifiés.** `auth.service.ts`, `app.ts`, `app.html`. Le backend n'est pas modifié.
 
 **Preuve de fonctionnement.** Commit `35034e3`.
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi `isLoggedIn` est un `computed` et non un booléen ordinaire.
 - Pourquoi la navigation change immédiatement à la déconnexion, sans rechargement.
 - Pourquoi la déconnexion ne contacte pas le serveur, et ce que devient le jeton (il reste valide jusqu'à son expiration).
@@ -187,7 +187,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 **Fichiers effectivement modifiés.** Créé : `shared/interceptors/error.interceptor.ts`. Modifié : `main.ts`. Le backend n'est pas modifié.
 
 **Preuve de fonctionnement.** Commit `68af9e8`.
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi le guard seul ne suffit pas et pourquoi il faut un intercepteur pour le `401`.
 - Pourquoi les routes `/api/auth/` sont exclues, et ce qui arriverait sans cette exclusion.
 - Pourquoi l'intercepteur relance l'erreur au lieu de l'avaler.
@@ -213,7 +213,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Preuve de fonctionnement.** Commit `51e4cc2`.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi envoyer le jeton à une URL tierce est une fuite d'identifiants, même si l'application ne le fait pas aujourd'hui.
 - Pourquoi la condition porte sur `/api/` et ce qu'elle ne couvre pas (URL absolues).
 - Pourquoi un test doit d'abord échouer avant la correction.
@@ -239,7 +239,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Preuve de fonctionnement.** Commits `238ce7b` (refactorisation du validateur) et `bcc89e9` (profil). Capture de la réponse de `PUT /api/users/me` (onglet Network) : ![Réponse de la modification du profil](docs/tp1/img/users-me-put-reponse.png). Relevé complet des requêtes : `docs/tp1/checkpoint.md`.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Où s'effectue « la mise à jour du profil » : fichiers côté front (`profile-page.html`, `profile-page.ts`, `auth.service.ts`, intercepteur) et côté back (`app.js` route `PUT /api/users/me`, middleware `auth`, modèle `User`).
 - Pourquoi le profil se recharge à chaque ouverture de la page alors que `currentUser` est perdu à l'actualisation.
 - Pourquoi la validation côté frontend n'est pas suffisante et ne remplace pas celle du backend.
@@ -268,7 +268,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Note sur l'usage de l'IA.** `mission1.md` et `signal-vs-localstorage.md` ont été rédigés par l'assistant à partir du code, pour gagner du temps. Je dois les relire et m'en approprier le contenu avant de les défendre à l'oral.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer : quiz oral sur toutes les étapes de la Mission 1, restant à faire)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Répondre aux questions du sujet sans les notes : routes utilisées, chemin de la mise à jour du profil.
 - Expliquer la différence entre Signal et `localStorage` et leur usage combiné.
 - Où voir les traces du backend et quelles lignes apparaissent lors d'un envoi.
@@ -291,7 +291,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Preuve de fonctionnement.** Commit `e088084`.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Où se trouve chaque étape de l'upload et de la lecture, et les deux flux.
 - Pourquoi une URL directement dans `src` ne reçoit pas l'en-tête `Authorization`.
 - La différence entre téléchargement complet d'un `Blob`, buffering du navigateur et streaming côté serveur.
@@ -317,7 +317,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Preuve de fonctionnement.** Commit `d9dd0f4`.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi chaque changement de page est une requête au serveur et pourquoi il est interdit de tout charger puis de découper dans Angular.
 - Pourquoi la page n'est appliquée qu'après une réponse réussie, et ce que la réponse du serveur (`page`, `pages`) garantit.
 - Pourquoi désactiver les boutons pendant un chargement (requêtes qui se chevauchent).
@@ -344,7 +344,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Preuve de fonctionnement.** Commit `1842c05`.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi contrôler le fichier côté frontend **et** côté backend, et pourquoi le premier ne remplace jamais le second.
 - Pourquoi le type MIME donné par le navigateur n'est pas une preuve du contenu réel du fichier.
 - Pourquoi un Signal `uploading` empêche la double soumission alors que l'attribut `disabled` seul arrive trop tard.
@@ -371,7 +371,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Preuve de fonctionnement.** Commit `595e622`.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi une liste sémantique avec des titres et des noms accessibles aide les lecteurs d'écran et la navigation au clavier.
 - Pourquoi `<time datetime>` : un texte lisible pour l'humain et une valeur ISO pour les machines.
 - Comment la grille `auto-fill` rend l'interface responsive sans règle par taille d'écran, et pourquoi `overflow-wrap` évite les débordements.
@@ -403,7 +403,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Preuve de fonctionnement.** Commit `63cf2d9`.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - La différence entre téléchargement complet d'un `Blob`, buffering du navigateur et streaming côté serveur, et pourquoi ce choix impose un temps de chargement avant la lecture.
 - Pourquoi une `ObjectURL` doit être révoquée (le `Blob` reste en mémoire tant qu'elle existe) et où ce code le fait : au remplacement et à la destruction du composant.
 - Pourquoi une requête plus ancienne doit être annulée quand l'utilisateur fait un nouveau choix (réponses dans le désordre).
@@ -430,7 +430,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Preuve de fonctionnement.** Commit : [hash à ajouter]. Captures de l'onglet Network : [à ajouter].
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi les bornes de pagination sont imposées par le serveur et pas seulement par l'interface.
 - Pourquoi un refus `400` s'observe en appelant l'API directement, alors que l'interface bloque d'abord le fichier, et pourquoi les deux contrôles sont nécessaires.
 - Ce que montrent `Accept-Ranges` et la réponse `206` : le serveur envoie le fichier en flux depuis le disque.
