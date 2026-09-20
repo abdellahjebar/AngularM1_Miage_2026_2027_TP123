@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { HttpEventType, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, TestRequest, provideHttpClientTesting } from '@angular/common/http/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Page } from '../../shared/models/page.model';
@@ -15,7 +15,7 @@ function pageOf(items: Track[], page = 1, pages = 1): Page<Track> {
   return { items, page, limit: 5, total: items.length, pages };
 }
 
-describe('TracksPageComponent — suppression et erreurs de liste', () => {
+describe('TracksPageComponent — liste, suppression et upload', () => {
   let fixture: ComponentFixture<TracksPageComponent>;
   let http: HttpTestingController;
   let snackBar: { open: ReturnType<typeof vi.fn> };
@@ -144,5 +144,113 @@ describe('TracksPageComponent — suppression et erreurs de liste', () => {
     fixture.detectChanges();
 
     expect(titles()).toEqual(['Chanson A']);
+  });
+
+  describe('upload avec progression', () => {
+    const song = () => new File(['abc'], 'riff.mp3', { type: 'audio/mpeg' });
+    const send = () => buttonByText('Envoyer') ?? buttonByText('Envoi…');
+    const bar = () => root().querySelector<HTMLProgressElement>('progress');
+
+    /** Starts an upload of a valid file and returns the pending POST. */
+    function startUpload(): TestRequest {
+      start(pageOf([]));
+      fixture.componentInstance.file.set(song());
+      fixture.detectChanges();
+      send().click();
+      fixture.detectChanges();
+      return http.expectOne((r) => r.method === 'POST' && r.url === '/api/tracks');
+    }
+
+    it('état « idle » au départ : pas de barre, bouton « Envoyer » désactivé sans fichier', () => {
+      start(pageOf([]));
+
+      expect(fixture.componentInstance.uploadState()).toBe('idle');
+      expect(bar()).toBeNull();
+      expect(buttonByText('Envoyer').disabled).toBe(true);
+    });
+
+    it('affiche le pourcentage réel pendant l’envoi et désactive les contrôles', () => {
+      const request = startUpload();
+
+      request.event({ type: HttpEventType.UploadProgress, loaded: 50, total: 200 });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.uploadState()).toBe('uploading');
+      expect(bar()?.getAttribute('value')).toBe('25');
+      expect(root().textContent).toContain('Envoi… 25 %');
+      expect(root().querySelector<HTMLInputElement>('input[type="file"]')!.disabled).toBe(true);
+      expect(root().querySelector<HTMLInputElement>('label input:not([type="file"])')!.disabled).toBe(true);
+      expect(send().disabled).toBe(true);
+      request.flush({ ...track('n1', 'Riff') });
+      listRequest(1).flush(pageOf([]));
+    });
+
+    it('à 100 % l’envoi n’est pas encore réussi : il attend la réponse du serveur', () => {
+      const request = startUpload();
+
+      request.event({ type: HttpEventType.UploadProgress, loaded: 200, total: 200 });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.uploadState()).toBe('uploading');
+      expect(root().textContent).toContain('Traitement par le serveur…');
+      expect(root().textContent).not.toContain('envoyée.');
+      request.flush(track('n1', 'Riff'));
+      listRequest(1).flush(pageOf([]));
+    });
+
+    it('total inconnu : barre indéterminée et jamais « NaN »', () => {
+      const request = startUpload();
+
+      request.event({ type: HttpEventType.UploadProgress, loaded: 40 });
+      fixture.detectChanges();
+
+      expect(bar()?.hasAttribute('value')).toBe(false);
+      expect(root().textContent).not.toContain('NaN');
+      request.flush(track('n1', 'Riff'));
+      listRequest(1).flush(pageOf([]));
+    });
+
+    it('un second clic pendant l’envoi n’envoie pas un deuxième POST', () => {
+      const request = startUpload();
+
+      // Le bouton est désactivé (jsdom ne déclenche pas de clic dessus) : on appelle donc la méthode
+      // directement pour vérifier que la garde du code, elle aussi, refuse une seconde soumission.
+      fixture.componentInstance.upload();
+      fixture.componentInstance.upload();
+
+      http.expectNone((r) => r.method === 'POST'); // le premier est déjà consommé par expectOne
+      request.flush(track('n1', 'Riff'));
+      listRequest(1).flush(pageOf([]));
+    });
+
+    it('réussite : état « success », message, formulaire vidé et contrôles réactivés', () => {
+      const request = startUpload();
+
+      request.flush(track('n1', 'Riff'));
+      listRequest(1).flush(pageOf([track('n1', 'Riff')]));
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.uploadState()).toBe('success');
+      expect(root().querySelector('[role="status"]')?.textContent).toContain('Piste « Riff » envoyée.');
+      expect(bar()).toBeNull();
+      expect(fixture.componentInstance.file()).toBeNull();
+      expect(root().querySelector<HTMLInputElement>('input[type="file"]')!.disabled).toBe(false);
+      expect(root().querySelector<HTMLInputElement>('label input:not([type="file"])')!.disabled).toBe(false);
+      expect(titles()).toEqual(['Riff']);
+    });
+
+    it('échec du serveur : état « error », message du serveur, fichier conservé pour réessayer', () => {
+      const request = startUpload();
+
+      request.flush({ message: 'Format audio refusé' }, { status: 400, statusText: 'Bad Request' });
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance.uploadState()).toBe('error');
+      expect(root().querySelector('[role="alert"]')?.textContent).toContain('Format audio refusé');
+      expect(fixture.componentInstance.file()).not.toBeNull();
+      expect(send().disabled).toBe(false); // on peut réessayer
+      expect(root().querySelector<HTMLInputElement>('input[type="file"]')!.disabled).toBe(false);
+      expect(root().querySelector<HTMLInputElement>('label input:not([type="file"])')!.disabled).toBe(false);
+    });
   });
 });

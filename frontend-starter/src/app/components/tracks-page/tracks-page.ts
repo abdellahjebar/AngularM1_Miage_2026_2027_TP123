@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { afterNextRender, Component, DestroyRef, ElementRef, inject, Injector, signal, viewChild } from '@angular/core';
+import { afterNextRender, Component, computed, DestroyRef, ElementRef, inject, Injector, signal, viewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
@@ -40,6 +40,14 @@ export class TracksPageComponent {
   readonly uploading = signal(false);
   readonly uploadError = signal('');
   readonly uploadMessage = signal('');
+  /** Upload progress in percent; null when unknown (then the bar is indeterminate). */
+  readonly uploadPercent = signal<number | null>(null);
+  /** The four upload states of the subject: nothing in progress, in progress, success, failure. */
+  readonly uploadState = computed<'idle' | 'uploading' | 'success' | 'error'>(() => {
+    if (this.uploading()) return 'uploading';
+    if (this.uploadError()) return 'error';
+    return this.uploadMessage() ? 'success' : 'idle';
+  });
   /** Track waiting for the user's confirmation, and track being deleted (blocks double clicks). */
   readonly confirmingId = signal<string | null>(null);
   readonly deletingId = signal<string | null>(null);
@@ -103,25 +111,32 @@ export class TracksPageComponent {
       return;
     }
 
+    const title = this.title.value.trim() || file.name;
     this.uploadError.set('');
     this.uploadMessage.set('');
+    this.uploadPercent.set(0);
     this.uploading.set(true);
+    this.title.disable();
 
-    this.service.upload(file, this.title.value.trim() || file.name).subscribe({
-      next: (track) => {
-        console.debug('[TracksPage] Piste envoyée', track.id);
-        this.uploadMessage.set(`Piste « ${track.title} » envoyée.`);
+    this.service.upload(file, title).subscribe({
+      next: (event) => {
+        if (event.type === 'progress') {
+          this.uploadPercent.set(event.percent);
+          return;
+        }
+        console.debug('[TracksPage] Piste envoyée', event.track.id);
+        this.uploadMessage.set(`Piste « ${event.track.title} » envoyée.`);
         this.title.setValue('');
         this.file.set(null);
         const input = this.fileInput()?.nativeElement;
         if (input) input.value = '';
-        this.uploading.set(false);
+        this.endUpload();
         this.load(1);
       },
       error: (error: HttpErrorResponse) => {
         console.error('[TracksPage] Envoi impossible, statut', error.status);
         this.uploadError.set(httpErrorMessage(error, 'Envoi impossible.'));
-        this.uploading.set(false);
+        this.endUpload();
       },
     });
   }
@@ -183,6 +198,12 @@ export class TracksPageComponent {
     const code = (event.target as HTMLAudioElement).error?.code;
     console.error('[TracksPage] Erreur du lecteur audio, code', code);
     this.audioError.set(mediaErrorMessage(code));
+  }
+
+  private endUpload(): void {
+    this.uploading.set(false);
+    this.uploadPercent.set(null);
+    this.title.enable();
   }
 
   /** Ends the delete, tells the user, and refreshes the page content unless the server was unreachable. */
