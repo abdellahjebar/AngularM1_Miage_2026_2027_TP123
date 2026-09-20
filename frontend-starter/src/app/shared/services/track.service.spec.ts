@@ -43,4 +43,17 @@ describe('TrackService', () => {
     expect(request.request.params.get('limit')).toBe('5');
     request.flush({ items: [], page: 1, limit: 5, total: 0, pages: 0 });
   });
+
+  it('delete() envoie DELETE /api/tracks/:id sans corps et se termine sur 204', () => {
+    let done = false;
+
+    service.delete('abc123').subscribe({ complete: () => (done = true) });
+
+    const request = http.expectOne('/api/tracks/abc123');
+    expect(request.request.method).toBe('DELETE');
+    expect(request.request.body).toBeNull();
+    request.flush(null, { status: 204, statusText: 'No Content' });
+
+    expect(done).toBe(true);
+  });
 });

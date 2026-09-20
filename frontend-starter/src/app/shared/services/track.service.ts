@@ -21,6 +21,11 @@ export class TrackService {
     return this.http.post<Track>('/api/tracks', body);
   }
 
+  /** Deletes a track. The backend checks the token and the owner, and answers 204 without a body. */
+  delete(id: string) {
+    return this.http.delete<void>(`/api/tracks/${id}`);
+  }
+
   audio(id: string) {
     return this.http.get(`/api/tracks/${id}/audio`, {
       responseType: 'blob',
