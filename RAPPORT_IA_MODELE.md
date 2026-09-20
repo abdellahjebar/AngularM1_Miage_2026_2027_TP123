@@ -1,6 +1,6 @@
-# Rapport d'usage de l'IA - TP1
+# Rapport d'usage de l'IA - TP1, TP2 et TP3
 
-*Ce rapport couvre le TP1 (Missions 0 et 1) et le TP2 (bibliothèque, upload et lecture audio).*
+*Ce rapport couvre le TP1 (Missions 0 et 1), le TP2 (bibliothèque, upload et lecture audio) et le TP3 (suppression, progression de l'upload, tests).*
 
 Pour chaque mission, détailler et fournir des explications concernant : objectif; prompt principal; plan proposé par l'agent; vérifications réalisées par le binôme; erreurs ou propositions rejetées; fichiers effectivement modifiés; preuve de fonctionnement; ce que chaque membre sait maintenant expliquer sans l'agent.
 
@@ -13,20 +13,22 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 
 ## Synthèse
 
-*Plan du document : outil utilisé · synthèse · consignes de méthode · Mission 0 · Mission 1 (étapes 1 à 4 et clôture) · TP2 (étapes 1 à 6).*
+*Plan du document : outil utilisé · synthèse · consignes de méthode · Mission 0 · Mission 1 (étapes 1 à 4 et clôture) · TP2 (étapes 1 à 6) · TP3 (étapes 1 à 5).*
 
-**Périmètre.** TP1 : cartographie de l'application (Mission 0), puis Mission 1 (validation des formulaires, déconnexion, retour vers `/login` sur un `401`, jeton limité aux requêtes `/api`, profil). TP2 : analyse du flux d'upload et de lecture, pagination robuste, upload sécurisé, cards accessibles, lecture audio complète et relevé réseau.
+**Périmètre.** TP1 : cartographie de l'application (Mission 0), puis Mission 1 (validation des formulaires, déconnexion, retour vers `/login` sur un `401`, jeton limité aux requêtes `/api`, profil). TP2 : analyse du flux d'upload et de lecture, pagination robuste, upload sécurisé, cards accessibles, lecture audio complète et relevé réseau. TP3 : lanceur de tests et premiers tests, suppression d'une piste (confirmation, SnackBar), progression de l'upload, tests du backend et rapport de tests.
 
-**Méthode appliquée à chaque étape.** Plan proposé par l'assistant et validé avant toute écriture ; code ; build ; test dans un navigateur réel (Edge sans interface, scripts conservés hors du dépôt) ; contrôle visuel ; entrée dans ce rapport ; un commit par étape. Le backend n'est jamais modifié et aucun secret n'est versionné (contrôle sur tout l'historique avant la publication de la branche du TP1).
+**Méthode appliquée à chaque étape.** Plan proposé par l'assistant et validé avant toute écriture ; code ; build ; test dans un navigateur réel (Edge sans interface, scripts conservés hors du dépôt) ; contrôle visuel ; entrée dans ce rapport ; un commit par étape. Le code du backend n'est jamais modifié (le TP3 y ajoute seulement un fichier de tests) et aucun secret n'est versionné (contrôle sur tout l'historique avant la publication de la branche du TP1).
 
-**Preuves.** 152 vérifications automatisées au total (81 pour le TP1, 71 pour le TP2), toutes réussies sur le code final. Pour cinq étapes (jeton limité à `/api`, pagination, upload, cards, lecture), le test a d'abord été exécuté contre l'ancien code afin de vérifier qu'il échoue : il détecte donc bien ce qu'il prétend contrôler.
+**Preuves.** 193 vérifications automatisées dans un navigateur réel (81 pour le TP1, 71 pour le TP2, 41 pour le TP3), toutes réussies sur le code final, et 36 tests dans le dépôt (26 frontend, 10 backend). Pour six étapes (jeton limité à `/api`, pagination, upload, cards, lecture, progression de l'upload), le test a d'abord été exécuté contre l'ancien code afin de vérifier qu'il échoue ; pour les tests du TP3, le code a été cassé volontairement pour vérifier que chaque test échoue quand il le doit.
 
 **Points de robustesse mis en évidence puis traités.**
 - un double clic envoyait deux fois le même fichier ;
 - des réponses tardives créaient des URL d'objet et la dernière n'était jamais révoquée en quittant la page (5 créées pour 4 révoquées) ;
 - le jeton était joint à n'importe quelle URL, y compris d'une autre origine ;
 - après l'échec d'un changement de page, l'indicateur de page et la liste n'étaient plus cohérents ;
-- « Aucune piste. » s'affichait à côté d'un message d'erreur.
+- « Aucune piste. » s'affichait à côté d'un message d'erreur ;
+- la progression de l'upload restait bloquée à 0 % alors que les tests unitaires passaient : `HttpClient` utilise `fetch` par défaut, qui ne rapporte pas la progression d'un envoi (corrigé par `withXhr()`, trouvé uniquement dans le navigateur réel) ;
+- le backend répond `500` en ayant déjà supprimé la métadonnée si le fichier du disque ne peut pas l'être : la liste est donc rechargée après toute erreur de suppression sauf « serveur injoignable ».
 
 **Rôles.** L'assistant a proposé les plans, écrit le code et les tests, puis présenté leurs résultats. J'ai fixé les exigences (qualité de production, dépôt en français, aucun secret, plan validé avant écriture, un commit par étape), tranché les compromis (par exemple ce qui reste hors périmètre) et contrôlé à la main l'étape 1 et le relevé réseau du TP1. Chaque erreur de l'assistant repérée en cours de route est consignée dans « Erreurs ou propositions rejetées ».
 
@@ -464,3 +466,98 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 - Ce que vérifie un test d'intercepteur ou de guard.
 - À quoi sert le contrôle de mutation : montrer qu'un test peut échouer.
 - La différence entre un test unitaire et un test d'intégration.
+
+### Étape 2 — Mission 5 : suppression d'une piste
+
+**Objectif.** Ajouter la suppression : action dans chaque card, confirmation, état d'attente contre les doubles clics, message de succès ou d'erreur (SnackBar), mise à jour de la page, gestion d'une piste déjà supprimée ou qui n'est pas la mienne, sans appel direct à `HttpClient` depuis le composant.
+
+**Prompts.** Prompt principal : le sujet du TP3. Cette étape figurait au plan en six étapes que j'ai validé (voir l'étape 1) ; l'installation d'Angular Material, nécessaire au SnackBar, avait été annoncée comme demandant mon accord et couverte par ce « go ».
+
+**Plan proposé par l'agent.** Écrire d'abord le test de `TrackService.delete()` et le voir échouer ; installer Angular Material (`@angular/material` et `@angular/cdk` en version 22.1.7, thème prédéfini `azure-blue`) ; confirmation en ligne dans la card plutôt qu'une fenêtre modale (plus simple à tester et à utiliser au clavier) ; recharger la page courante après suppression, ou la page précédente si la piste supprimée était la seule de la page ; fermer le lecteur si la piste supprimée est celle en cours de lecture.
+
+**Vérifications réalisées.**
+- Lecture du code du backend avant d'écrire : `DELETE` répond `204`, `404` pour une piste inconnue **ou appartenant à un autre utilisateur**, et `500` si le fichier du disque ne peut pas être supprimé **alors que la métadonnée est déjà supprimée**. D'où le choix de recharger la liste sur toute erreur sauf « serveur injoignable ».
+- `TrackService.delete()` : test écrit d'abord, échec constaté (la méthode n'existait pas), puis code, puis réussite.
+- 6 tests de composant (confirmation, annulation, double clic, `404`, serveur injoignable, page 2) et casses volontaires : chaque casse (garde anti double clic, retour à la page précédente, rechargement sur `404`, confirmation ignorée) a fait échouer le test prévu.
+- Navigateur réel : 27 vérifications réussies (détail dans `docs/tp3/rapport-tests.md`), dont la piste supprimée dans un autre onglet, la piste d'un autre utilisateur (`404`, sa piste reste), la piste en cours de lecture (ObjectURL libéré) et le focus clavier sur « Annuler ». Contrôle visuel de la card avec confirmation et du SnackBar.
+
+**Erreurs ou propositions rejetées.**
+- Ma commande de nettoyage d'une casse volontaire a exécuté `git checkout` sur le fichier HTML **non commité** et a effacé mon interface de suppression ; je l'ai immédiatement réécrite, puis vérifié tests et build. Depuis, la restauration se fait depuis une copie, jamais avec `git checkout` sur un fichier modifié.
+- Mon premier script de navigateur supposait la mauvaise page pour « Piste 1 » (la liste est triée du plus récent au plus ancien) : erreur du script, corrigée avant toute conclusion.
+- Le fichier `package-lock.json` gonflait le diff (indentation) ; il a été ramené à l'indentation d'origine.
+- Un test de non-régression du TP2 a échoué une fois sur un délai d'attente en préparation, puis a réussi 4 fois de suite ; cause non identifiée, signalée ici.
+
+**Fichiers effectivement modifiés.** `track.service.ts`, `tracks-page.ts`, `tracks-page.html`, `styles.css`, `angular.json`, `package.json`, `package-lock.json` ; créés : `tracks-page.spec.ts` et les tests du service. Le backend n'est pas modifié.
+
+**Preuve de fonctionnement.** Commits `3e0bfa4` (service) et `5c41dbe` (interface).
+
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
+- Pourquoi la suppression passe par un service et pas par `HttpClient` dans le composant.
+- Pourquoi le guard et l'interface ne sécurisent pas la suppression, et comment le backend la protège (JWT, filtre sur le propriétaire, `404` et non `403`).
+- Pourquoi on recharge la liste après une erreur, y compris une erreur `500` du serveur.
+- Pourquoi une confirmation en ligne et un état « suppression en cours » évitent les doubles suppressions.
+
+### Étape 3 — Mission 6 : progression de l'upload
+
+**Objectif.** Afficher la progression de l'upload avec les événements HTTP d'Angular, en distinguant l'absence d'envoi, l'envoi avec pourcentage, la réussite et l'échec ; désactiver les contrôles pendant l'envoi ; empêcher une seconde soumission.
+
+**Prompts.** Prompt principal : le sujet du TP3. Étape prévue au plan en six étapes que j'ai validé (voir l'étape 1).
+
+**Plan proposé par l'agent.** Tests du service d'abord (`reportProgress`, pourcentage arrondi, total inconnu) ; `upload()` renvoie un flux d'événements `progress` puis `done` ; un état à quatre valeurs dans le composant ; barre `<progress>` déterminée ou indéterminée ; contrôles désactivés ; vérification réelle avec un débit limité.
+
+**Vérifications réalisées.**
+- Tests du service écrits d'abord : échec constaté, puis code, puis réussite (26 tests au total avec les tests de composant).
+- Casses volontaires : `reportProgress` oublié, pourcentage brut, total inconnu traité comme 0, garde anti double envoi retirée, titre jamais désactivé ou jamais réactivé : chacune a fait échouer un test. Deux de ces casses ont révélé un test trop faible (le titre réactivé n'était pas vérifié ; le double clic sur un bouton désactivé n'atteignait jamais la garde du code, jsdom ne déclenchant pas de clic) : tests corrigés.
+- **Navigateur réel, premier essai : échec.** Seul `0 %` a été observé. Une mesure directe sur `XMLHttpRequest` avec le même débit a montré 53 événements, donc le problème venait de l'application : `HttpClient` utilise `fetch` par défaut, qui ne rapporte pas la progression d'un envoi. Correction : `withXhr()` dans `main.ts`. Nouvel essai : vingt pourcentages réels de 0 à 95, sans recul, contrôles désactivés, un seul `POST` malgré un clic forcé, échec et serveur injoignable gérés. 14 vérifications réussies.
+- Non-régression après le changement de transport : TP1 (81) et TP2 (71) relancés, tous réussis.
+
+**Erreurs ou propositions rejetées.**
+- Ma première version passait tous les tests unitaires alors que la fonctionnalité ne marchait pas dans le vrai navigateur : c'est le test réel, pas les tests unitaires, qui a trouvé la cause (le transport `fetch`).
+- Un script de non-régression du TP1 a échoué sur deux vérifications parce que le nom du compte de test était codé en dur dans le script ; corrigé dans la copie du script, pas dans l'application.
+
+**Fichiers effectivement modifiés.** `main.ts` (`withXhr()`), `track.service.ts`, `tracks-page.ts`, `tracks-page.html`, `styles.css` et les tests associés. Le backend n'est pas modifié.
+
+**Preuve de fonctionnement.** Commit `c277ea1`.
+
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
+- Pourquoi un upload avec progression émet plusieurs événements et pas une seule réponse (`observe: 'events'`).
+- Comment le pourcentage est calculé (`loaded / total`) et pourquoi 100 % ne veut pas dire « réussi ».
+- Pourquoi `fetch` ne convient pas ici et ce que change `withXhr()`.
+- Pourquoi les tests unitaires ne pouvaient pas voir ce défaut.
+
+### Étape 4 — Mission 7 : tests du backend (extension facultative)
+
+**Objectif.** Ajouter des tests de contrat et de sécurité au backend, sans modifier ses routes.
+
+**Prompts.** Prompt principal : le sujet du TP3 (section « Extension backend facultative »). Étape prévue au plan validé.
+
+**Plan proposé par l'agent.** Reprendre la méthode de `api.test.js` (vrai serveur Express sur un port aléatoire, sans MongoDB) et ne garder que les cas qui répondent avant la base : `401` sans JWT, avec JWT invalide, signé avec un autre secret ou expiré, upload sans fichier, type refusé.
+
+**Vérifications réalisées.** 8 tests ajoutés, 10 au total, tous réussis. Trois casses volontaires de `app.js` (authentification acceptée sans en-tête, signature non vérifiée, fichier absent accepté) ont chacune fait échouer les tests prévus ; `app.js` a été restauré (`git status` propre). Non couverts, car ils exigent une base : la pagination et la piste d'un autre utilisateur (vérifiés par requêtes réelles dans les preuves du TP2 et du TP3).
+
+**Erreurs ou propositions rejetées.** Aucune.
+
+**Fichiers effectivement modifiés.** Créé : `backend/test/contract.test.js`. Aucune route modifiée.
+
+**Preuve de fonctionnement.** Commit `265949d`.
+
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
+- Pourquoi ces tests s'exécutent sans MongoDB (le middleware d'authentification et le filtre Multer répondent avant la base).
+- La différence entre un test unitaire et un test d'intégration.
+
+### Étape 5 — Preuves et clôture du TP3
+
+**Objectif.** Rassembler les preuves demandées : tests, build, relevé réseau d'une suppression et d'un upload, console propre, rapport de tests, réponses écrites.
+
+**Prompts.** Prompt principal : le sujet du TP3 (section « Vérifications finales »). Étape prévue au plan validé.
+
+**Vérifications réalisées.** `npm test` frontend (26 réussis) et backend (10 réussis), `npm run build` sans erreur, relevé de structure des requêtes `POST` `201`, `DELETE` `204`, rechargements `200` (jeton présent, valeur jamais relevée), console sans jeton ni mot de passe, non-régression de 193 vérifications. Le tout est dans `docs/tp3/rapport-tests.md`.
+
+**Erreurs ou propositions rejetées.** Limites assumées : le relevé réseau est fait par script et non depuis l'onglet Network (capture non fournie) ; l'onglet ne montre pas les événements de progression un par un, d'où la mesure par pourcentages observés.
+
+**Fichiers effectivement modifiés.** Créé : `docs/tp3/rapport-tests.md`. Mis à jour : `AGENTS.md`.
+
+**Preuve de fonctionnement.** Commit `1ca659d`. Détail dans `docs/tp3/rapport-tests.md`.
+
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
+- Les six questions de la restitution orale (voir `docs/tp3/rapport-tests.md`, « Réponses écrites »).
