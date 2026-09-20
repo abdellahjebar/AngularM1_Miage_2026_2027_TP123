@@ -435,3 +435,32 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 - Pourquoi un refus `400` s'observe en appelant l'API directement, alors que l'interface bloque d'abord le fichier, et pourquoi les deux contrôles sont nécessaires.
 - Ce que montrent `Accept-Ranges` et la réponse `206` : le serveur envoie le fichier en flux depuis le disque.
 - Pourquoi le backend répond `404` et non `403` pour la piste d'un autre utilisateur.
+
+
+## TP3 — Fiabilisation, suppression, progression et tests
+
+### Étape 1 — Lanceur de tests et premiers tests (service, intercepteur, guard)
+
+**Objectif.** Rendre les tests du frontend exécutables et écrire les premiers tests avant les nouvelles fonctionnalités, pour que chaque fonctionnalité suivante puisse être couverte au moment où elle est écrite (Mission 7, tests obligatoires).
+
+**Prompts.** Prompt principal : le sujet du TP3 (`SUJET_ETUDIANT_TP3.md`), relu par l'assistant. J'ai demandé un plan détaillé (« give me a detailed plan for tp3 »), proposé en six étapes, puis je l'ai validé (« go and lets finish it if anything requires my approval tell me before we start »). L'assistant m'a listé à l'avance ce qui demandait mon accord : installation d'Angular Material, commits, capture d'écran, publication.
+
+**Plan proposé par l'agent.** Créer la branche `tp3-reliability` à partir de `tp2-library` ; lancer `npm test` pour savoir si le lanceur fonctionne réellement ; écrire trois fichiers de tests sans backend ni MongoDB (`HttpTestingController`) ; vérifier que chaque test peut échouer en cassant volontairement le code.
+
+**Vérifications réalisées.**
+- Le lanceur ne fonctionnait pas : il demandait un environnement DOM (`jsdom`), puis la configuration `development` du build était absente d'`angular.json`. Corrigé par la dépendance de développement `jsdom` et par `buildTarget: gpc:build` sur la cible `test` (deux changements de configuration, sans toucher au code de l'application).
+- Le fichier `package-lock.json` avait triplé de taille dans le diff parce que npm avait repris l'indentation à 4 espaces du `package.json` ; il a été réécrit avec l'indentation d'origine (2 espaces), et le diff commité tombe à environ 480 lignes, uniquement les paquets ajoutés.
+- 7 tests, tous réussis : `TrackService.list()` (URL, méthode, `page`, `limit`, valeurs par défaut, résultat simulé), intercepteur (en-tête `Authorization` avec token, aucun en-tête sans token, aucun en-tête vers une autre origine) et guard (redirection vers `/login` sans token, accès avec token).
+- Contrôle de mutation : quatre casses volontaires du code (`limit` retiré des paramètres, filtre `/api/` retiré, en-tête jamais posé, guard qui laisse tout passer) ont chacune fait échouer exactement le test prévu, puis le code a été restauré.
+
+**Erreurs ou propositions rejetées.** Aucune. Limite : ces tests vérifient le comportement isolé de chaque brique avec des réponses HTTP simulées, pas l'application complète.
+
+**Fichiers effectivement modifiés.** Créés : `track.service.spec.ts`, `auth.interceptor.spec.ts`, `auth.guard.spec.ts`. Modifiés : `angular.json`, `package.json`, `package-lock.json`. Le backend n'est pas modifié.
+
+**Preuve de fonctionnement.** Commit `6ffb1eb`. `npm test` : 3 fichiers, 7 tests réussis.
+
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
+- Pourquoi ces tests n'ont pas besoin de MongoDB : `HttpTestingController` remplace le vrai réseau, et on vérifie la requête sortante puis on simule la réponse.
+- Ce que vérifie un test d'intercepteur ou de guard.
+- À quoi sert le contrôle de mutation : montrer qu'un test peut échouer.
+- La différence entre un test unitaire et un test d'intégration.
