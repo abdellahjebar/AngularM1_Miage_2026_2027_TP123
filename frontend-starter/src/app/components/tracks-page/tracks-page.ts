@@ -1,8 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Track } from '../../shared/models/track.model';
 import { TrackService } from '../../shared/services/track.service';
+import { audioFileError, formatSize } from '../../shared/utils/audio-file';
 import { httpErrorMessage } from '../../shared/utils/http-error-message';
 
 @Component({
@@ -12,6 +13,9 @@ import { httpErrorMessage } from '../../shared/utils/http-error-message';
 })
 export class TracksPageComponent {
   private readonly service = inject(TrackService);
+  private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
+
+  protected readonly formatSize = formatSize;
 
   readonly tracks = signal<Track[]>([]);
   readonly page = signal(1);
@@ -20,15 +24,31 @@ export class TracksPageComponent {
   readonly error = signal('');
   readonly audioUrl = signal('');
   readonly title = new FormControl('', { nonNullable: true });
-  file?: File;
+  readonly file = signal<File | null>(null);
+  readonly uploading = signal(false);
+  readonly uploadError = signal('');
+  readonly uploadMessage = signal('');
 
   constructor() {
     this.load();
   }
 
   choose(event: Event): void {
-    this.file = (event.target as HTMLInputElement).files?.[0];
-    console.debug('[TracksPage] Fichier sélectionné', this.file?.name);
+    const input = event.target as HTMLInputElement;
+    const selected = input.files?.[0] ?? null;
+    const problem = selected ? audioFileError(selected) : null;
+
+    this.uploadMessage.set('');
+    this.uploadError.set(problem ?? '');
+
+    if (problem) {
+      input.value = '';
+      this.file.set(null);
+      return;
+    }
+
+    this.file.set(selected);
+    console.debug('[TracksPage] Fichier sélectionné', selected?.name);
   }
 
   load(page = this.page()): void {
@@ -55,16 +75,35 @@ export class TracksPageComponent {
   }
 
   upload(): void {
-    if (!this.file) return;
+    const file = this.file();
+    if (!file || this.uploading()) return;
 
-    this.service.upload(this.file, this.title.value || this.file.name).subscribe({
+    const problem = audioFileError(file);
+    if (problem) {
+      this.uploadError.set(problem);
+      return;
+    }
+
+    this.uploadError.set('');
+    this.uploadMessage.set('');
+    this.uploading.set(true);
+
+    this.service.upload(file, this.title.value.trim() || file.name).subscribe({
       next: (track) => {
         console.debug('[TracksPage] Piste envoyée', track.id);
+        this.uploadMessage.set(`Piste « ${track.title} » envoyée.`);
         this.title.setValue('');
-        this.file = undefined;
+        this.file.set(null);
+        const input = this.fileInput()?.nativeElement;
+        if (input) input.value = '';
+        this.uploading.set(false);
         this.load(1);
       },
-      error: (error) => console.error('[TracksPage] Envoi impossible', error),
+      error: (error: HttpErrorResponse) => {
+        console.error('[TracksPage] Envoi impossible, statut', error.status);
+        this.uploadError.set(httpErrorMessage(error, 'Envoi impossible.'));
+        this.uploading.set(false);
+      },
     });
   }
 

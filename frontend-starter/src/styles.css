@@ -28,6 +28,7 @@ button:disabled { opacity: 0.45; }
 audio { width: 100%; }
 .error { color: #a33; }
 .success { color: #1d755e; }
+.hint { display: block; margin: 0 0 0.6rem; color: #61756f; }
 label:has(+ small.error) { margin-bottom: 0; }
 small.error { margin-bottom: 0.4rem; }
 small.error + label { margin-top: 0; }

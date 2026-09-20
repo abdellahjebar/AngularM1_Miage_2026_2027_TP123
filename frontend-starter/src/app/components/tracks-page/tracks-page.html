@@ -9,8 +9,23 @@
     <article class="card">
       <h2>Importer</h2>
       <label>Titre<input [formControl]="title" /></label>
-      <label>Fichier audio<input type="file" accept="audio/*" (change)="choose($event)" /></label>
-      <button type="button" (click)="upload()" [disabled]="!file">Envoyer</button>
+      <label>Fichier audio
+        <input #fileInput type="file" (change)="choose($event)"
+          accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/x-m4a,.mp3,.wav,.ogg,.m4a" />
+      </label>
+      <small class="hint">MP3, WAV, OGG ou M4A, 25 Mo maximum.</small>
+      @if (file(); as selected) {
+        <small class="hint">{{ selected.name }} · {{ formatSize(selected.size) }}</small>
+      }
+      @if (uploadError()) {
+        <p class="error" role="alert">{{ uploadError() }}</p>
+      }
+      @if (uploadMessage()) {
+        <p class="success" role="status">{{ uploadMessage() }}</p>
+      }
+      <button type="button" (click)="upload()" [disabled]="!file() || uploading()">
+        {{ uploading() ? 'Envoi…' : 'Envoyer' }}
+      </button>
     </article>
 
     <article class="card">
