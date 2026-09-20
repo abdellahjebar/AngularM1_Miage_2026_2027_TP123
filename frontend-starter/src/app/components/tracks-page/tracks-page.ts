@@ -1,7 +1,9 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Track } from '../../shared/models/track.model';
 import { TrackService } from '../../shared/services/track.service';
+import { httpErrorMessage } from '../../shared/utils/http-error-message';
 
 @Component({
   imports: [ReactiveFormsModule],
@@ -15,6 +17,7 @@ export class TracksPageComponent {
   readonly page = signal(1);
   readonly pages = signal(1);
   readonly loading = signal(false);
+  readonly error = signal('');
   readonly audioUrl = signal('');
   readonly title = new FormControl('', { nonNullable: true });
   file?: File;
@@ -28,25 +31,27 @@ export class TracksPageComponent {
     console.debug('[TracksPage] Fichier sélectionné', this.file?.name);
   }
 
-  load(): void {
+  load(page = this.page()): void {
     this.loading.set(true);
-    this.service.list(this.page()).subscribe({
+    this.error.set('');
+    this.service.list(page).subscribe({
       next: (response) => {
         console.debug('[TracksPage] Pistes chargées', response.items.length);
         this.tracks.set(response.items);
+        this.page.set(response.page);
         this.pages.set(response.pages);
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error('[TracksPage] Chargement impossible', error);
+      error: (error: HttpErrorResponse) => {
+        console.error('[TracksPage] Chargement impossible, statut', error.status);
+        this.error.set(httpErrorMessage(error, 'Impossible de charger les pistes.'));
         this.loading.set(false);
       },
     });
   }
 
   go(page: number): void {
-    this.page.set(page);
-    this.load();
+    this.load(page);
   }
 
   upload(): void {
@@ -57,8 +62,7 @@ export class TracksPageComponent {
         console.debug('[TracksPage] Piste envoyée', track.id);
         this.title.setValue('');
         this.file = undefined;
-        this.page.set(1);
-        this.load();
+        this.load(1);
       },
       error: (error) => console.error('[TracksPage] Envoi impossible', error),
     });
