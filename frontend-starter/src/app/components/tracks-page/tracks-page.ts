@@ -1,9 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { Track } from '../../shared/models/track.model';
 import { TrackService } from '../../shared/services/track.service';
-import { audioFileError, audioFormat, formatSize } from '../../shared/utils/audio-file';
+import { audioFileError, audioFormat, formatSize, mediaErrorMessage } from '../../shared/utils/audio-file';
 import { formatDate } from '../../shared/utils/format-date';
 import { httpErrorMessage } from '../../shared/utils/http-error-message';
 
@@ -15,6 +16,7 @@ import { httpErrorMessage } from '../../shared/utils/http-error-message';
 export class TracksPageComponent {
   private readonly service = inject(TrackService);
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
+  private audioRequest?: Subscription;
 
   protected readonly formatSize = formatSize;
   protected readonly formatDate = formatDate;
@@ -26,6 +28,9 @@ export class TracksPageComponent {
   readonly loading = signal(false);
   readonly error = signal('');
   readonly audioUrl = signal('');
+  readonly currentTrack = signal<Track | null>(null);
+  readonly audioLoading = signal(false);
+  readonly audioError = signal('');
   readonly title = new FormControl('', { nonNullable: true });
   readonly file = signal<File | null>(null);
   readonly uploading = signal(false);
@@ -33,6 +38,10 @@ export class TracksPageComponent {
   readonly uploadMessage = signal('');
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      this.audioRequest?.unsubscribe();
+      this.setAudioUrl('');
+    });
     this.load();
   }
 
@@ -111,14 +120,43 @@ export class TracksPageComponent {
   }
 
   play(track: Track): void {
-    this.service.audio(track.id).subscribe({
+    // A newer choice cancels the previous download, so a slow older answer can never replace it.
+    this.audioRequest?.unsubscribe();
+    this.setAudioUrl('');
+    this.currentTrack.set(track);
+    this.audioError.set('');
+    this.audioLoading.set(true);
+
+    this.audioRequest = this.service.audio(track.id).subscribe({
       next: (blob) => {
         console.debug('[TracksPage] Audio chargé', track.id);
-        const previousUrl = this.audioUrl();
-        if (previousUrl) URL.revokeObjectURL(previousUrl);
-        this.audioUrl.set(URL.createObjectURL(blob));
+        this.setAudioUrl(URL.createObjectURL(blob));
+        this.audioLoading.set(false);
       },
-      error: (error) => console.error('[TracksPage] Lecture impossible', error),
+      error: (error: HttpErrorResponse) => {
+        console.error('[TracksPage] Lecture impossible, statut', error.status);
+        this.audioError.set(`Impossible de lire « ${track.title} ». ${this.audioRequestMessage(error)}`);
+        this.audioLoading.set(false);
+      },
     });
+  }
+
+  onAudioError(event: Event): void {
+    const code = (event.target as HTMLAudioElement).error?.code;
+    console.error('[TracksPage] Erreur du lecteur audio, code', code);
+    this.audioError.set(mediaErrorMessage(code));
+  }
+
+  /** Replaces the object URL and releases the previous one, otherwise its Blob stays in memory. */
+  private setAudioUrl(url: string): void {
+    const previous = this.audioUrl();
+    if (previous) URL.revokeObjectURL(previous);
+    this.audioUrl.set(url);
+  }
+
+  private audioRequestMessage(error: HttpErrorResponse): string {
+    if (error.status === 0) return httpErrorMessage(error, '');
+    if (error.status === 404) return 'Cette piste est introuvable.';
+    return 'Le serveur n’a pas pu envoyer le fichier.';
   }
 }

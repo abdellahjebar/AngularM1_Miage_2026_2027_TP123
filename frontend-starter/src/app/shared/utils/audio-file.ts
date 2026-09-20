@@ -32,6 +32,22 @@ export function formatSize(bytes: number): string {
   return `${value.toFixed(1).replace('.', ',')} ${unit}`;
 }
 
+/** Understandable message for an <audio> element error (MediaError.code). */
+export function mediaErrorMessage(code?: number): string {
+  switch (code) {
+    case 1:
+      return 'La lecture a été interrompue.';
+    case 2:
+      return 'Une erreur réseau a interrompu la lecture.';
+    case 3:
+      return 'Le fichier est corrompu ou ne peut pas être décodé.';
+    case 4:
+      return 'Ce format audio n’est pas pris en charge par votre navigateur.';
+    default:
+      return 'Le lecteur n’a pas pu lire ce fichier.';
+  }
+}
+
 /** Returns a message if the API would refuse this file, otherwise null. */
 export function audioFileError(file: File): string | null {
   if (!ALLOWED_AUDIO_TYPES.has(file.type)) {

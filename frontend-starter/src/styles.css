@@ -25,6 +25,9 @@ button:disabled { opacity: 0.45; }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.8rem; margin: 1rem 0; padding: 0; list-style: none; }
 .cards .empty { grid-column: 1 / -1; color: #61756f; }
 .track-card { display: flex; flex-direction: column; gap: 0.5rem; padding: 1rem; background: #f7faf9; border: 1px solid #e1ebe7; border-radius: 12px; }
+.track-card.playing { border-color: #1d755e; box-shadow: 0 0 0 2px #1d755e33; }
+.player { display: grid; gap: 0.5rem; margin-top: 1rem; padding: 1rem; background: #f7faf9; border: 1px solid #e1ebe7; border-radius: 12px; }
+.player p { margin: 0; }
 .track-card button { margin-top: auto; }
 .track-card h3 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
 .track-card p { margin: 0; color: #4f635d; font-size: 0.85rem; overflow-wrap: anywhere; }

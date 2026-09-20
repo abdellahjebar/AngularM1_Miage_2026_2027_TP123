@@ -41,7 +41,8 @@
       }
       <ul class="cards" aria-label="Mes pistes">
         @for (track of tracks(); track track.id) {
-          <li class="track track-card">
+          <li class="track track-card" [class.playing]="currentTrack()?.id === track.id"
+            [attr.aria-current]="currentTrack()?.id === track.id ? 'true' : null">
             <h3>{{ track.title }}</h3>
             <p>{{ track.originalName }}</p>
             <div class="track-meta">
@@ -62,8 +63,19 @@
         <span>Page {{ page() }} / {{ pages() }}</span>
         <button type="button" (click)="go(page() + 1)" [disabled]="page() === pages() || loading()">Suiv.</button>
       </div>
-      @if (audioUrl()) {
-        <audio [src]="audioUrl()" controls autoplay></audio>
+      @if (currentTrack(); as current) {
+        <section class="player" aria-label="Lecteur">
+          <p class="now-playing">En cours : <b>{{ current.title }}</b></p>
+          @if (audioLoading()) {
+            <p role="status">Chargement du morceau…</p>
+          }
+          @if (audioError()) {
+            <p class="error" role="alert">{{ audioError() }}</p>
+          }
+          @if (audioUrl()) {
+            <audio [src]="audioUrl()" controls autoplay (error)="onAudioError($event)"></audio>
+          }
+        </section>
       }
     </article>
   </div>
