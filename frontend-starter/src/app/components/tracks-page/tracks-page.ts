@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, ElementRef, inject, Injector, signal, viewChild } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 import { Track } from '../../shared/models/track.model';
 import { TrackService } from '../../shared/services/track.service';
@@ -15,6 +16,9 @@ import { httpErrorMessage } from '../../shared/utils/http-error-message';
 })
 export class TracksPageComponent {
   private readonly service = inject(TrackService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly injector = inject(Injector);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
   private audioRequest?: Subscription;
 
@@ -36,6 +40,9 @@ export class TracksPageComponent {
   readonly uploading = signal(false);
   readonly uploadError = signal('');
   readonly uploadMessage = signal('');
+  /** Track waiting for the user's confirmation, and track being deleted (blocks double clicks). */
+  readonly confirmingId = signal<string | null>(null);
+  readonly deletingId = signal<string | null>(null);
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -141,10 +148,68 @@ export class TracksPageComponent {
     });
   }
 
+  askDelete(track: Track): void {
+    if (this.deletingId()) return;
+    this.confirmingId.set(track.id);
+    // The "Supprimer" button disappears: move the focus to the safe choice so keyboard users are not lost.
+    afterNextRender(() => this.host.nativeElement.querySelector<HTMLElement>('[data-cancel-delete]')?.focus(), {
+      injector: this.injector,
+    });
+  }
+
+  cancelDelete(): void {
+    if (this.deletingId()) return;
+    this.confirmingId.set(null);
+  }
+
+  confirmDelete(track: Track): void {
+    if (this.deletingId()) return;
+    this.deletingId.set(track.id);
+
+    this.service.delete(track.id).subscribe({
+      next: () => {
+        console.debug('[TracksPage] Piste supprimée', track.id);
+        if (this.currentTrack()?.id === track.id) this.stopPlayback();
+        this.finishDelete(`Piste « ${track.title} » supprimée.`);
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('[TracksPage] Suppression impossible, statut', error.status);
+        this.finishDelete(this.deleteErrorMessage(error, track), error.status !== 0);
+      },
+    });
+  }
+
   onAudioError(event: Event): void {
     const code = (event.target as HTMLAudioElement).error?.code;
     console.error('[TracksPage] Erreur du lecteur audio, code', code);
     this.audioError.set(mediaErrorMessage(code));
+  }
+
+  /** Ends the delete, tells the user, and refreshes the page content unless the server was unreachable. */
+  private finishDelete(message: string, reload = true): void {
+    this.deletingId.set(null);
+    this.confirmingId.set(null);
+    this.snackBar.open(message, 'Fermer', { duration: 6000 });
+    if (!reload) return;
+    // Deleting the last card of a page above 1 would leave an empty page: go back one page instead.
+    const lastOfPage = this.tracks().length === 1 && this.page() > 1;
+    this.load(lastOfPage ? this.page() - 1 : this.page());
+  }
+
+  private deleteErrorMessage(error: HttpErrorResponse, track: Track): string {
+    if (error.status === 0) return httpErrorMessage(error, '');
+    if (error.status === 404) {
+      return `« ${track.title} » n’existe plus ou n’est pas à vous. La liste a été actualisée.`;
+    }
+    return `Suppression de « ${track.title} » incomplète : ${httpErrorMessage(error, 'erreur du serveur.')} La liste a été actualisée.`;
+  }
+
+  private stopPlayback(): void {
+    this.audioRequest?.unsubscribe();
+    this.setAudioUrl('');
+    this.currentTrack.set(null);
+    this.audioError.set('');
+    this.audioLoading.set(false);
   }
 
   /** Replaces the object URL and releases the previous one, otherwise its Blob stays in memory. */

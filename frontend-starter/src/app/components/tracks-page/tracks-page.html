@@ -50,7 +50,22 @@
               <span>{{ formatSize(track.size) }}</span>
               <time [attr.datetime]="track.createdAt">{{ formatDate(track.createdAt) }}</time>
             </div>
-            <button type="button" (click)="play(track)" [attr.aria-label]="'Lire ' + track.title">▶ Lire</button>
+            @if (confirmingId() === track.id) {
+              <div class="confirm" role="group" [attr.aria-label]="'Confirmer la suppression de ' + track.title"
+                (keydown.escape)="cancelDelete()">
+                <span>Supprimer « {{ track.title }} » ?</span>
+                <button type="button" class="danger" (click)="confirmDelete(track)" [disabled]="deletingId() === track.id">
+                  {{ deletingId() === track.id ? 'Suppression…' : 'Oui, supprimer' }}
+                </button>
+                <button type="button" data-cancel-delete (click)="cancelDelete()" [disabled]="deletingId() === track.id">Annuler</button>
+              </div>
+            } @else {
+              <div class="actions">
+                <button type="button" (click)="play(track)" [attr.aria-label]="'Lire ' + track.title">▶ Lire</button>
+                <button type="button" class="danger-outline" (click)="askDelete(track)" [disabled]="deletingId() !== null"
+                  [attr.aria-label]="'Supprimer ' + track.title">Supprimer</button>
+              </div>
+            }
           </li>
         } @empty {
           @if (!loading() && !error()) {

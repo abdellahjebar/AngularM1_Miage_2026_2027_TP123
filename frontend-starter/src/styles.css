@@ -28,7 +28,10 @@ button:disabled { opacity: 0.45; }
 .track-card.playing { border-color: #1d755e; box-shadow: 0 0 0 2px #1d755e33; }
 .player { display: grid; gap: 0.5rem; margin-top: 1rem; padding: 1rem; background: #f7faf9; border: 1px solid #e1ebe7; border-radius: 12px; }
 .player p { margin: 0; }
-.track-card button { margin-top: auto; }
+.track-card .actions, .track-card .confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: auto; }
+.confirm span { flex-basis: 100%; overflow-wrap: anywhere; font-size: 0.9rem; }
+button.danger { background: #b3261e; }
+button.danger-outline { color: #b3261e; background: white; border: 1px solid #b3261e; }
 .track-card h3 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
 .track-card p { margin: 0; color: #4f635d; font-size: 0.85rem; overflow-wrap: anywhere; }
 .track-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.8rem; color: #4f635d; font-size: 0.85rem; }
