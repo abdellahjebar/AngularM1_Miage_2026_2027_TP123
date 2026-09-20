@@ -1,6 +1,6 @@
 # Rapport d'usage de l'IA - TP1
 
-*Ce rapport couvre le TP1 (Missions 0 et 1).*
+*Ce rapport couvre le TP1 (Missions 0 et 1) et le TP2 (bibliothèque, upload et lecture audio).*
 
 Pour chaque mission, détailler et fournir des explications concernant : objectif; prompt principal; plan proposé par l'agent; vérifications réalisées par le binôme; erreurs ou propositions rejetées; fichiers effectivement modifiés; preuve de fonctionnement; ce que chaque membre sait maintenant expliquer sans l'agent.
 
@@ -13,16 +13,20 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 
 ## Synthèse
 
-*Plan du document : outil utilisé · synthèse · consignes de méthode · Mission 0 · Mission 1 (étapes 1 à 4 et clôture).*
+*Plan du document : outil utilisé · synthèse · consignes de méthode · Mission 0 · Mission 1 (étapes 1 à 4 et clôture) · TP2 (étapes 1 à 6).*
 
-**Périmètre.** Cartographie de l'application (Mission 0), puis Mission 1 (validation des formulaires, déconnexion, retour vers `/login` sur un `401`, jeton limité aux requêtes `/api`, profil).
+**Périmètre.** TP1 : cartographie de l'application (Mission 0), puis Mission 1 (validation des formulaires, déconnexion, retour vers `/login` sur un `401`, jeton limité aux requêtes `/api`, profil). TP2 : analyse du flux d'upload et de lecture, pagination robuste, upload sécurisé, cards accessibles, lecture audio complète et relevé réseau.
 
 **Méthode appliquée à chaque étape.** Plan proposé par l'assistant et validé avant toute écriture ; code ; build ; test dans un navigateur réel (Edge sans interface, scripts conservés hors du dépôt) ; contrôle visuel ; entrée dans ce rapport ; un commit par étape. Le backend n'est jamais modifié et aucun secret n'est versionné (contrôle sur tout l'historique avant la publication de la branche du TP1).
 
-**Preuves.** 81 vérifications automatisées, toutes réussies sur le code final. Pour l'étape du jeton limité à `/api`, le test a d'abord été exécuté contre l'ancien code afin de vérifier qu'il échoue : il détecte donc bien ce qu'il prétend contrôler.
+**Preuves.** 152 vérifications automatisées au total (81 pour le TP1, 71 pour le TP2), toutes réussies sur le code final. Pour cinq étapes (jeton limité à `/api`, pagination, upload, cards, lecture), le test a d'abord été exécuté contre l'ancien code afin de vérifier qu'il échoue : il détecte donc bien ce qu'il prétend contrôler.
 
-**Point de robustesse mis en évidence puis traité.**
+**Points de robustesse mis en évidence puis traités.**
+- un double clic envoyait deux fois le même fichier ;
+- des réponses tardives créaient des URL d'objet et la dernière n'était jamais révoquée en quittant la page (5 créées pour 4 révoquées) ;
 - le jeton était joint à n'importe quelle URL, y compris d'une autre origine ;
+- après l'échec d'un changement de page, l'indicateur de page et la liste n'étaient plus cohérents ;
+- « Aucune piste. » s'affichait à côté d'un message d'erreur.
 
 **Rôles.** L'assistant a proposé les plans, écrit le code et les tests, puis présenté leurs résultats. J'ai fixé les exigences (qualité de production, dépôt en français, aucun secret, plan validé avant écriture, un commit par étape), tranché les compromis (par exemple ce qui reste hors périmètre) et contrôlé à la main l'étape 1 et le relevé réseau du TP1. Chaque erreur de l'assistant repérée en cours de route est consignée dans « Erreurs ou propositions rejetées ».
 
@@ -99,7 +103,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 **Preuve de fonctionnement.** Commit `7b8adb3` (cartographie et schéma du flux) et commit `831e597` (`AGENTS.md` et `CLAUDE.md`). Capture de la requête de connexion dans les DevTools (un jeton était déjà enregistré : l'en-tête `Authorization` est présent, sa valeur est masquée) :
   ![Requête de connexion, statut 200](docs/tp1/img/login-200.png)
 
-**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer après un auto-test à voix haute)*
 - Le trajet complet d'un clic sur « Se connecter » : composant, `AuthService`, intercepteur, proxy, Express, modèle, MongoDB, puis retour, stockage du jeton et redirection.
 - Pourquoi le composant ne fait jamais d'appel HTTP direct et passe par le service.
 - Ce que fait l'intercepteur et pourquoi il ajoute le jeton à toutes les requêtes, y compris celle de connexion.
@@ -134,7 +138,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
   ![Connexion refusée en 401](docs/tp1/img/step1-04-mauvais-mot-de-passe-401.png)
 - État initial de la page de connexion (avant toute action) : `docs/tp1/img/step1-01-connexion-etat-initial.png`.
 
-**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
 - Pourquoi `if (this.submitting()) return;` est nécessaire en plus du bouton désactivé.
 - Pourquoi le template écrit `errors['required']` (signature d'index et `noPropertyAccessFromIndexSignature`).
 - Pourquoi les journaux d'erreur n'affichent que le statut.
@@ -159,7 +163,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 **Fichiers effectivement modifiés.** `auth.service.ts`, `app.ts`, `app.html`. Le backend n'est pas modifié.
 
 **Preuve de fonctionnement.** Commit `35034e3`.
-**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
 - Pourquoi `isLoggedIn` est un `computed` et non un booléen ordinaire.
 - Pourquoi la navigation change immédiatement à la déconnexion, sans rechargement.
 - Pourquoi la déconnexion ne contacte pas le serveur, et ce que devient le jeton (il reste valide jusqu'à son expiration).
@@ -183,7 +187,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 **Fichiers effectivement modifiés.** Créé : `shared/interceptors/error.interceptor.ts`. Modifié : `main.ts`. Le backend n'est pas modifié.
 
 **Preuve de fonctionnement.** Commit `68af9e8`.
-**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
 - Pourquoi le guard seul ne suffit pas et pourquoi il faut un intercepteur pour le `401`.
 - Pourquoi les routes `/api/auth/` sont exclues, et ce qui arriverait sans cette exclusion.
 - Pourquoi l'intercepteur relance l'erreur au lieu de l'avaler.
@@ -209,7 +213,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Preuve de fonctionnement.** Commit `51e4cc2`.
 
-**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
 - Pourquoi envoyer le jeton à une URL tierce est une fuite d'identifiants, même si l'application ne le fait pas aujourd'hui.
 - Pourquoi la condition porte sur `/api/` et ce qu'elle ne couvre pas (URL absolues).
 - Pourquoi un test doit d'abord échouer avant la correction.
@@ -235,7 +239,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Preuve de fonctionnement.** Commits `238ce7b` (refactorisation du validateur) et `bcc89e9` (profil). Capture de la réponse de `PUT /api/users/me` (onglet Network) : ![Réponse de la modification du profil](docs/tp1/img/users-me-put-reponse.png). Relevé complet des requêtes : `docs/tp1/checkpoint.md`.
 
-**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
 - Où s'effectue « la mise à jour du profil » : fichiers côté front (`profile-page.html`, `profile-page.ts`, `auth.service.ts`, intercepteur) et côté back (`app.js` route `PUT /api/users/me`, middleware `auth`, modèle `User`).
 - Pourquoi le profil se recharge à chaque ouverture de la page alors que `currentUser` est perdu à l'actualisation.
 - Pourquoi la validation côté frontend n'est pas suffisante et ne remplace pas celle du backend.
@@ -264,7 +268,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Note sur l'usage de l'IA.** `mission1.md` et `signal-vs-localstorage.md` ont été rédigés par l'assistant à partir du code, pour gagner du temps. Je dois les relire et m'en approprier le contenu avant de les défendre à l'oral.
 
-**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer : quiz oral sur toutes les étapes de la Mission 1, restant à faire)*
 - Répondre aux questions du sujet sans les notes : routes utilisées, chemin de la mise à jour du profil.
 - Expliquer la différence entre Signal et `localStorage` et leur usage combiné.
 - Où voir les traces du backend et quelles lignes apparaissent lors d'un envoi.
@@ -275,7 +279,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Objectif.** Vérifier les prérequis du TP2, comparer la pagination à l'énoncé, et identifier où se trouve chaque étape de l'upload et de la lecture, avant toute modification (première partie de la Mission 3), avec les réponses aux questions sur la mémoire, le buffering et le streaming.
 
-**Prompts.** J'ai collé dans l'assistant le texte d'introduction du TP2 (objectif, prérequis, déroulement conseillé), puis « whats the plan » et « go » après la proposition de plan en sept étapes.
+**Prompts.** Prompt principal : le texte d'introduction du TP2 (objectif, prérequis, déroulement conseillé), collé dans l'assistant. J'ai demandé le plan (« whats the plan »), proposé en sept étapes, que j'ai validé avant toute écriture.
 
 **Plan proposé par l'agent.** Vérifier les prérequis (backend, frontend, proxy, connexion, fichiers audio) ; créer la branche `tp2-library` à partir de `tp1-auth` ; relire `tracks-page`, `track.service` et les routes du backend en vérifiant chaque numéro de ligne ; rédiger l'analyse dans `docs/tp2/analyse.md` ; sans modifier de code.
 
@@ -296,7 +300,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Objectif.** Compléter la Mission 2 : représenter l'erreur éventuelle de la liste avec un Signal et l'afficher, et s'assurer que la pagination reste cohérente quand une requête échoue.
 
-**Prompts.** « go », après la proposition de plan en sept étapes.
+**Prompts.** Prompt principal : le texte d'introduction du TP2 (voir l'étape 1). Cette étape figurait au plan en sept étapes que j'ai validé ; validation avant écriture, après le commit de l'étape 1.
 
 **Plan proposé par l'agent.** Ajouter un Signal `error` et un message (`httpErrorMessage`). Appliquer la page reçue du serveur (`response.page`) seulement en cas de succès, pour qu'un échec laisse l'indicateur de page et la liste cohérents. Ne pas afficher « Aucune piste. » pendant un chargement ou après une erreur. Désactiver « Préc. » et « Suiv. » pendant un chargement. Le rechargement après un envoi demande la page 1.
 
@@ -322,7 +326,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Objectif.** Compléter la Mission 3 côté frontend : refuser un fichier invalide avant l'appel HTTP avec un message clair, afficher l'état d'envoi, empêcher la double soumission, afficher les erreurs du serveur et un message de succès, vider le formulaire et recharger la première page.
 
-**Prompts.** « go », après le commit de l'étape 2.
+**Prompts.** Prompt principal : le texte d'introduction du TP2 (voir l'étape 1). Cette étape figurait au plan en sept étapes que j'ai validé ; validation avant écriture, après le commit de l'étape 2.
 
 **Plan proposé par l'agent.** Une fonction pure `audioFileError` dans `shared/utils/audio-file.ts`, avec les mêmes six types et la même limite de 25 Mo que le backend, et `formatSize` pour un affichage lisible. Le fichier choisi devient un Signal, avec `uploading`, `uploadError` et `uploadMessage`. Contrôle à la sélection (retour immédiat) puis juste avant l'envoi. Bouton désactivé et libellé « Envoi… » pendant l'envoi. En cas d'erreur du serveur, message affiché et sélection conservée pour réessayer. En cas de succès : message, titre et champ fichier vidés, page 1 rechargée. Titre vide : nom du fichier.
 
@@ -350,7 +354,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Objectif.** Présenter les morceaux sous forme de cards responsives et accessibles, avec le titre, le nom d'origine, le format, la taille, la date d'ajout et une action de lecture (Mission 3).
 
-**Prompts.** « go », après le commit de l'étape 3.
+**Prompts.** Prompt principal : le texte d'introduction du TP2 (voir l'étape 1). Cette étape figurait au plan en sept étapes que j'ai validé ; validation avant écriture, après le commit de l'étape 3.
 
 **Plan proposé par l'agent.** Une liste sémantique `<ul aria-label="Mes pistes">` de `<li>` (avec `@for` et `@empty`, comme le demande le sujet) : titre en `<h3>`, nom d'origine, badge de format (`audioFormat`), taille lisible (`formatSize`), date dans un `<time datetime>` (`formatDate`, en français) et un bouton « ▶ Lire » au nom accessible. Grille CSS `auto-fill` (`minmax(14rem, 1fr)`) : une colonne sur téléphone, plusieurs sur grand écran. Retour à la ligne des noms très longs, contour de focus visible de 3 px, boutons alignés en bas des cards, couleurs à contraste suffisant.
 
@@ -377,7 +381,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Objectif.** Compléter la lecture (Mission 3) : afficher le morceau en cours, afficher une erreur audio compréhensible, et révoquer l'`ObjectURL` finale à la destruction du composant.
 
-**Prompts.** « go », après le commit de l'étape 4.
+**Prompts.** Prompt principal : le texte d'introduction du TP2 (voir l'étape 1). Cette étape figurait au plan en sept étapes que j'ai validé ; validation avant écriture, après le commit de l'étape 4.
 
 **Plan proposé par l'agent.**
 - Un Signal `currentTrack` et une section « Lecteur » (`aria-label`) avec « En cours : titre » ; la card jouée est mise en évidence et marquée `aria-current`.
@@ -404,3 +408,30 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 - Pourquoi une `ObjectURL` doit être révoquée (le `Blob` reste en mémoire tant qu'elle existe) et où ce code le fait : au remplacement et à la destruction du composant.
 - Pourquoi une requête plus ancienne doit être annulée quand l'utilisateur fait un nouveau choix (réponses dans le désordre).
 - Comment on distingue une erreur de requête (HTTP) d'une erreur du lecteur (`MediaError`).
+
+### Étape 6 — Preuves réseau du TP2
+
+**Objectif.** Vérifier et documenter les cinq points du checkpoint réseau du TP2 : chaque changement de page modifie le paramètre `page`, l'upload est multipart avec `audio` et `title`, une erreur `400` pour un fichier invalide, la réponse de lecture est un flux audio, et une piste n'est lisible que par son propriétaire.
+
+**Prompts.** Prompt principal : le texte d'introduction du TP2 (voir l'étape 1). Cette étape figurait au plan en sept étapes que j'ai validé ; validation avant écriture, après le commit de l'étape 5.
+
+**Plan proposé par l'agent.** Envoyer six pistes réelles avec un compte de test dédié, puis relever la structure des requêtes et des réponses (statut, en-têtes utiles, clés JSON) sans jamais reproduire un jeton : pagination et bornes du serveur, envoi multipart, refus de fichiers en appelant l'API directement (puisque l'interface les bloque d'abord), lecture avec et sans en-tête `Range`, accès d'un autre utilisateur ou sans jeton. Compléter par un passage dans le navigateur sur les données réelles.
+
+**Vérifications réalisées.**
+- Pagination : `page=1` (5 éléments), `page=2` (1 élément), bornes imposées par le serveur (`page=0&limit=1000` donne `page` 1 et `limit` 20), page hors limites (liste vide). Dans le navigateur, « Suiv. » puis « Préc. » produisent trois requêtes (`page=1`, `page=2`, `page=1`), toutes avec `Authorization`.
+- Refus : fichier `text/plain` (`400`), fichier de 26 Mo (`400`), aucun fichier (`400`), aucun jeton (`401`) ; aucune piste créée par ces envois.
+- Lecture : `200` avec `Content-Type: audio/mpeg`, `Content-Length` égal aux octets reçus et à la taille du fichier sur le disque ; avec `Range: bytes=0-99`, réponse `206` et `Content-Range: bytes 0-99/3605337`, ce qui confirme la lecture en flux depuis le disque.
+- Propriétaire : un autre utilisateur reçoit `404` « Piste inconnue » (et non `403`), l'absence de jeton ou un jeton invalide donnent `401`, et la liste de l'autre compte n'affiche pas ces pistes.
+- Limites : ces relevés viennent de requêtes directes et d'un script ; les captures de l'onglet Network sont ajoutées séparément. Le refus de taille renvoyé directement par l'API est le message par défaut de Multer, en anglais (« File too large »), que l'interface ne montre pas puisqu'elle refuse le fichier avant l'envoi.
+
+**Erreurs ou propositions rejetées.** Aucune pour cette étape.
+
+**Fichiers effectivement modifiés.** Créé : `docs/tp2/checkpoint.md`. Aucun code modifié, le backend n'est pas modifié.
+
+**Preuve de fonctionnement.** Commit : [hash à ajouter]. Captures de l'onglet Network : [à ajouter].
+
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
+- Pourquoi les bornes de pagination sont imposées par le serveur et pas seulement par l'interface.
+- Pourquoi un refus `400` s'observe en appelant l'API directement, alors que l'interface bloque d'abord le fichier, et pourquoi les deux contrôles sont nécessaires.
+- Ce que montrent `Accept-Ranges` et la réponse `206` : le serveur envoie le fichier en flux depuis le disque.
+- Pourquoi le backend répond `404` et non `403` pour la piste d'un autre utilisateur.
