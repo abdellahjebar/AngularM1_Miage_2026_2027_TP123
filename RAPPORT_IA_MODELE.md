@@ -317,3 +317,31 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 - Pourquoi chaque changement de page est une requête au serveur et pourquoi il est interdit de tout charger puis de découper dans Angular.
 - Pourquoi la page n'est appliquée qu'après une réponse réussie, et ce que la réponse du serveur (`page`, `pages`) garantit.
 - Pourquoi désactiver les boutons pendant un chargement (requêtes qui se chevauchent).
+
+### Étape 3 — Upload : contrôles avant envoi, état d'envoi et messages
+
+**Objectif.** Compléter la Mission 3 côté frontend : refuser un fichier invalide avant l'appel HTTP avec un message clair, afficher l'état d'envoi, empêcher la double soumission, afficher les erreurs du serveur et un message de succès, vider le formulaire et recharger la première page.
+
+**Prompts.** « go », après le commit de l'étape 2.
+
+**Plan proposé par l'agent.** Une fonction pure `audioFileError` dans `shared/utils/audio-file.ts`, avec les mêmes six types et la même limite de 25 Mo que le backend, et `formatSize` pour un affichage lisible. Le fichier choisi devient un Signal, avec `uploading`, `uploadError` et `uploadMessage`. Contrôle à la sélection (retour immédiat) puis juste avant l'envoi. Bouton désactivé et libellé « Envoi… » pendant l'envoi. En cas d'erreur du serveur, message affiché et sélection conservée pour réessayer. En cas de succès : message, titre et champ fichier vidés, page 1 rechargée. Titre vide : nom du fichier.
+
+**Vérifications réalisées.**
+- `npm run build` réussi.
+- Test dans un navigateur Edge sans interface, 23 vérifications, avec de vrais envois des deux fichiers `song1.mp3` et `song2.mp3` : type refusé sans aucune requête, fichier de 26 Mo refusé sans requête, fichier d'exactement 25 Mo accepté, taille lisible affichée, `POST /api/tracks` en `201` avec un corps `multipart/form-data` contenant les champs `audio` et `title`, message de succès, formulaire vidé, première page rechargée avec la nouvelle piste en tête, titre vide remplacé par le nom du fichier, message de succès effacé au choix d'un nouveau fichier, erreurs serveur `400` et `500` simulées (message affiché, sélection conservée, bouton réactivé), serveur injoignable simulé, un double clic ne produit qu'une requête, aucun jeton ni mot de passe dans la console.
+- Le test a d'abord été exécuté contre l'ancien code : 9 vérifications sur 23 (14 échecs attendus, dont un double clic qui envoyait le fichier deux fois). Contre le nouveau code : 23 sur 23.
+- Non-régression : pagination (18 sur 18) et TP1 (23, 17, 17 et 24). Contrôle visuel de la carte d'import (état d'erreur et état prêt à envoyer).
+- Les pistes de test ont été supprimées après chaque essai.
+- Limites : les échecs `400`, `500` et l'indisponibilité du serveur sont simulés par interception. Le type vérifié est celui que fournit le navigateur, comme côté backend : un contrôle du contenu réel des octets reste de la responsabilité du serveur.
+
+**Erreurs ou propositions rejetées.** Une vérification du test échouait à tort : elle cherchait le nom du fichier et trouvait aussi la ligne de la liste apparue après l'envoi. C'était le test, pas le code ; l'assertion a été corrigée après vérification. Le premier essai contre l'ancien code avait déjà montré que les attentes du test devaient être non bloquantes.
+
+**Fichiers effectivement modifiés.** Créé : `shared/utils/audio-file.ts`. Modifiés : `tracks-page.ts`, `tracks-page.html`, `styles.css` (classe `.hint`). Le backend n'est pas modifié.
+
+**Preuve de fonctionnement.** Commit `1842c05`.
+
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
+- Pourquoi contrôler le fichier côté frontend **et** côté backend, et pourquoi le premier ne remplace jamais le second.
+- Pourquoi le type MIME donné par le navigateur n'est pas une preuve du contenu réel du fichier.
+- Pourquoi un Signal `uploading` empêche la double soumission alors que l'attribut `disabled` seul arrive trop tard.
+- Pourquoi la sélection et le titre sont conservés quand le serveur répond par une erreur.
