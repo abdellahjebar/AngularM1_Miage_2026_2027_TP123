@@ -285,9 +285,35 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Fichiers effectivement modifiés.** Créé : `docs/tp2/analyse.md`. Aucun code modifié, le backend n'est pas modifié.
 
-**Preuve de fonctionnement.** Commit : [hash à ajouter].
+**Preuve de fonctionnement.** Commit `e088084`.
 
 **Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
 - Où se trouve chaque étape de l'upload et de la lecture, et les deux flux.
 - Pourquoi une URL directement dans `src` ne reçoit pas l'en-tête `Authorization`.
 - La différence entre téléchargement complet d'un `Blob`, buffering du navigateur et streaming côté serveur.
+
+### Étape 2 — Pagination : message d'erreur et liste robuste
+
+**Objectif.** Compléter la Mission 2 : représenter l'erreur éventuelle de la liste avec un Signal et l'afficher, et s'assurer que la pagination reste cohérente quand une requête échoue.
+
+**Prompts.** « go », après la proposition de plan en sept étapes.
+
+**Plan proposé par l'agent.** Ajouter un Signal `error` et un message (`httpErrorMessage`). Appliquer la page reçue du serveur (`response.page`) seulement en cas de succès, pour qu'un échec laisse l'indicateur de page et la liste cohérents. Ne pas afficher « Aucune piste. » pendant un chargement ou après une erreur. Désactiver « Préc. » et « Suiv. » pendant un chargement. Le rechargement après un envoi demande la page 1.
+
+**Vérifications réalisées.**
+- `npm run build` réussi.
+- Test dans un navigateur Edge sans interface, 18 vérifications. Partie A, backend réel : la première requête est `GET /api/tracks?page=1&limit=5`, bibliothèque vide (« Aucune piste. », « Page 1 / 1 », boutons désactivés), aucune erreur affichée. Partie B, bibliothèque simulée de 6 pistes (2 pages de 5) : page 1 puis page 2 avec une **nouvelle requête** à chaque changement (pas de découpage local), « Actualiser » recharge la page courante, erreur au changement de page (message affiché, page et liste inchangées, boutons réutilisables), erreur au chargement initial et serveur injoignable (message sans « Aucune piste. »), boutons désactivés pendant le chargement, un double clic ne produit qu'une requête, aucun jeton ni mot de passe dans la console.
+- Le test a d'abord été exécuté contre l'ancien code : 11 vérifications sur 18 (sept échecs attendus : message d'erreur, indicateur de page incohérent, « Aucune piste. » à côté de l'erreur, boutons actifs pendant le chargement). Contre le nouveau code : 18 sur 18.
+- Non-régression du TP1 : 23 sur 23, 17 sur 17, 17 sur 17 et 24 sur 24.
+- Limite : la bibliothèque de six pistes est simulée par interception des requêtes, car le compte de démonstration n'a aucune piste ; le paramètre `page` réel est vérifié sur le backend réel (partie A).
+
+**Erreurs ou propositions rejetées.** Le premier essai du test contre l'ancien code s'est arrêté sur un délai dépassé au lieu de signaler des échecs : c'était un défaut du test, pas du code. Les attentes ont été rendues non bloquantes puis le test relancé.
+
+**Fichiers effectivement modifiés.** `tracks-page.ts` et `tracks-page.html`. Le backend n'est pas modifié.
+
+**Preuve de fonctionnement.** Commit `d9dd0f4`.
+
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
+- Pourquoi chaque changement de page est une requête au serveur et pourquoi il est interdit de tout charger puis de découper dans Angular.
+- Pourquoi la page n'est appliquée qu'après une réponse réussie, et ce que la réponse du serveur (`page`, `pages`) garantit.
+- Pourquoi désactiver les boutons pendant un chargement (requêtes qui se chevauchent).
