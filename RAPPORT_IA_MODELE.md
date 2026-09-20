@@ -372,3 +372,35 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 - Pourquoi `<time datetime>` : un texte lisible pour l'humain et une valeur ISO pour les machines.
 - Comment la grille `auto-fill` rend l'interface responsive sans règle par taille d'écran, et pourquoi `overflow-wrap` évite les débordements.
 - Ce que signifie un contraste de 4,5:1 (niveau AA) et comment il se calcule.
+
+### Étape 5 — Lecture : morceau en cours, erreurs claires, libération de l'ObjectURL
+
+**Objectif.** Compléter la lecture (Mission 3) : afficher le morceau en cours, afficher une erreur audio compréhensible, et révoquer l'`ObjectURL` finale à la destruction du composant.
+
+**Prompts.** « go », après le commit de l'étape 4.
+
+**Plan proposé par l'agent.**
+- Un Signal `currentTrack` et une section « Lecteur » (`aria-label`) avec « En cours : titre » ; la card jouée est mise en évidence et marquée `aria-current`.
+- Un état de chargement « Chargement du morceau… » (`role="status"`), car le fichier est téléchargé entièrement avant d'être lu.
+- Chaque nouvelle lecture annule la précédente (`unsubscribe`) : une réponse tardive pour un morceau ancien ne peut pas remplacer un choix plus récent.
+- Un Signal `audioError` pour les échecs de requête (piste introuvable, erreur serveur, serveur injoignable) et pour l'élément `<audio>` lui-même (`mediaErrorMessage`, selon `MediaError.code` : interrompu, réseau, fichier corrompu, format non pris en charge).
+- `setAudioUrl` révoque l'URL précédente à chaque remplacement, et `DestroyRef.onDestroy` révoque la dernière URL et annule la requête en cours.
+
+**Vérifications réalisées.**
+- `npm run build` réussi.
+- Test dans un navigateur Edge sans interface, 17 vérifications, avec deux vrais morceaux envoyés puis lus : titre en cours affiché dans un lecteur étiqueté, card jouée mise en évidence avec `aria-current`, URL `blob:` donnée au lecteur ; **lecture réelle** : le navigateur charge les métadonnées et décode le fichier (durée de 180 s, aucune erreur du lecteur) ; état de chargement pendant un téléchargement lent ; un clic sur B pendant le téléchargement de A ignore la réponse tardive de A (une seule URL créée) ; l'URL précédente est révoquée quand on change de morceau ; l'URL finale est révoquée en quittant la page et **toutes les URL créées sont révoquées (4 créées, 4 révoquées)** ; erreurs `404`, `500`, serveur injoignable et fichier indécodable chacune avec un message clair et sans lecteur cassé ; reprise normale après une erreur ; aucun jeton ni mot de passe dans la console.
+- Le test a d'abord été exécuté contre l'ancien code : 7 vérifications sur 17. Les échecs révèlent de vrais défauts : trois URL créées au lieu d'une par les réponses tardives, et la dernière URL jamais révoquée en quittant la page (5 créées, 4 révoquées). Contre le nouveau code : 17 sur 17.
+- Non-régression : cards (13 sur 13), envoi (23 sur 23), pagination (18 sur 18) et TP1 (23, 17, 17 et 24). Contrôle visuel du lecteur. Les pistes de test ont été supprimées après chaque essai.
+- Limites : les erreurs `404`, `500`, l'indisponibilité du serveur et le fichier indécodable sont simulés par interception ; la lecture réelle est prouvée par le chargement des métadonnées et le décodage, pas par l'écoute ; Edge seulement.
+
+**Erreurs ou propositions rejetées.** Aucune pour cette étape. Point de conception : avec `responseType: 'blob'`, le corps d'une erreur JSON du serveur arrive sous forme de `Blob` et n'est pas lisible directement ; les messages d'erreur audio sont donc choisis d'après le statut HTTP.
+
+**Fichiers effectivement modifiés.** `tracks-page.ts`, `tracks-page.html`, `styles.css` et `shared/utils/audio-file.ts` (`mediaErrorMessage`). Le backend n'est pas modifié.
+
+**Preuve de fonctionnement.** Commit `63cf2d9`.
+
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
+- La différence entre téléchargement complet d'un `Blob`, buffering du navigateur et streaming côté serveur, et pourquoi ce choix impose un temps de chargement avant la lecture.
+- Pourquoi une `ObjectURL` doit être révoquée (le `Blob` reste en mémoire tant qu'elle existe) et où ce code le fait : au remplacement et à la destruction du composant.
+- Pourquoi une requête plus ancienne doit être annulée quand l'utilisateur fait un nouveau choix (réponses dans le désordre).
+- Comment on distingue une erreur de requête (HTTP) d'une erreur du lecteur (`MediaError`).

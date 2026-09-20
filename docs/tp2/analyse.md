@@ -2,6 +2,8 @@
 
 Références de lignes vérifiées sur le code au début du TP2 (branche `tp2-library`, créée à partir de `tp1-auth`). Le backend n'est pas modifié.
 
+> Ce document décrit l'état du code **au début du TP2** : les numéros de ligne et la liste « Ce qui reste à compléter » correspondent à cet état initial. Les manques listés ont été traités aux étapes 2 à 5 (voir `RAPPORT_IA_MODELE.md`).
+
 ## Prérequis vérifiés
 
 | Vérification | Résultat |
