@@ -345,3 +345,30 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 - Pourquoi le type MIME donné par le navigateur n'est pas une preuve du contenu réel du fichier.
 - Pourquoi un Signal `uploading` empêche la double soumission alors que l'attribut `disabled` seul arrive trop tard.
 - Pourquoi la sélection et le titre sont conservés quand le serveur répond par une erreur.
+
+### Étape 4 — Cards de bibliothèque lisibles, responsives et accessibles
+
+**Objectif.** Présenter les morceaux sous forme de cards responsives et accessibles, avec le titre, le nom d'origine, le format, la taille, la date d'ajout et une action de lecture (Mission 3).
+
+**Prompts.** « go », après le commit de l'étape 3.
+
+**Plan proposé par l'agent.** Une liste sémantique `<ul aria-label="Mes pistes">` de `<li>` (avec `@for` et `@empty`, comme le demande le sujet) : titre en `<h3>`, nom d'origine, badge de format (`audioFormat`), taille lisible (`formatSize`), date dans un `<time datetime>` (`formatDate`, en français) et un bouton « ▶ Lire » au nom accessible. Grille CSS `auto-fill` (`minmax(14rem, 1fr)`) : une colonne sur téléphone, plusieurs sur grand écran. Retour à la ligne des noms très longs, contour de focus visible de 3 px, boutons alignés en bas des cards, couleurs à contraste suffisant.
+
+**Vérifications réalisées.**
+- `npm run build` réussi.
+- Test dans un navigateur Edge sans interface, 13 vérifications : état vide affiché dans la liste ; card réelle après un envoi (titre, nom d'origine, badge MP3, « 3,4 Mo », date lisible, valeur ISO conservée dans `datetime`) et disparition de l'ancien affichage en octets bruts ; liste étiquetée, chaque card avec un titre, bouton au nom accessible ; lecture depuis la card (requête audio authentifiée en `200`, URL `blob:` donnée au lecteur) ; mise en page à 1000 px (2 colonnes) et à 400 px (1 colonne) avec un titre de 120 caractères et un nom de fichier très long : aucun débordement horizontal ; navigation au clavier avec contour de focus visible ; contrastes calculés à partir des styles réels, tous supérieurs à 4,5:1 (13,25 ; 6,11 ; 6,11 ; 10,09 ; 5,59).
+- Contre l'ancien balisage, le test échoue dès la première vérification. Contre le nouveau : 13 sur 13.
+- Non-régression : envoi (23 sur 23), pagination (18 sur 18) et TP1 (23, 17, 17 et 24). Contrôle visuel des captures bureau et téléphone. Les pistes de test ont été supprimées après chaque essai.
+- Limites : mise en page vérifiée dans Edge seulement, lecteur d'écran non testé, contraste vérifié par calcul.
+
+**Erreurs ou propositions rejetées.** Au contrôle visuel, les boutons de lecture n'étaient pas alignés en bas quand le contenu des cards différait : corrigé (mise en page en colonne, marge automatique). Le test contre l'ancien balisage s'arrête au premier échec au lieu de lister tous les écarts. Le test de l'étape 3 a dû être adapté au nouveau balisage (titre dans un `h3`).
+
+**Fichiers effectivement modifiés.** Créé : `shared/utils/format-date.ts`. Modifiés : `shared/utils/audio-file.ts` (`audioFormat`), `tracks-page.ts`, `tracks-page.html`, `styles.css`. Le backend n'est pas modifié.
+
+**Preuve de fonctionnement.** Commit `595e622`.
+
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
+- Pourquoi une liste sémantique avec des titres et des noms accessibles aide les lecteurs d'écran et la navigation au clavier.
+- Pourquoi `<time datetime>` : un texte lisible pour l'humain et une valeur ISO pour les machines.
+- Comment la grille `auto-fill` rend l'interface responsive sans règle par taille d'écran, et pourquoi `overflow-wrap` évite les débordements.
+- Ce que signifie un contraste de 4,5:1 (niveau AA) et comment il se calcule.
