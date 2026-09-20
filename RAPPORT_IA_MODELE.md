@@ -422,13 +422,13 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 - Refus : fichier `text/plain` (`400`), fichier de 26 Mo (`400`), aucun fichier (`400`), aucun jeton (`401`) ; aucune piste créée par ces envois.
 - Lecture : `200` avec `Content-Type: audio/mpeg`, `Content-Length` égal aux octets reçus et à la taille du fichier sur le disque ; avec `Range: bytes=0-99`, réponse `206` et `Content-Range: bytes 0-99/3605337`, ce qui confirme la lecture en flux depuis le disque.
 - Propriétaire : un autre utilisateur reçoit `404` « Piste inconnue » (et non `403`), l'absence de jeton ou un jeton invalide donnent `401`, et la liste de l'autre compte n'affiche pas ces pistes.
-- Limites : ces relevés viennent de requêtes directes et d'un script ; les captures de l'onglet Network sont ajoutées séparément. Le refus de taille renvoyé directement par l'API est le message par défaut de Multer, en anglais (« File too large »), que l'interface ne montre pas puisqu'elle refuse le fichier avant l'envoi.
+- Limites : ces relevés viennent de requêtes directes et d'un script , pas de l'onglet Network. Le refus de taille renvoyé directement par l'API est le message par défaut de Multer, en anglais (« File too large »), que l'interface ne montre pas puisqu'elle refuse le fichier avant l'envoi.
 
 **Erreurs ou propositions rejetées.** Aucune pour cette étape.
 
 **Fichiers effectivement modifiés.** Créé : `docs/tp2/checkpoint.md`. Aucun code modifié, le backend n'est pas modifié.
 
-**Preuve de fonctionnement.** Commit : [hash à ajouter]. Captures de l'onglet Network : [à ajouter].
+**Preuve de fonctionnement.** Commit `cf72c5e`. Relevé détaillé des requêtes et des réponses : `docs/tp2/checkpoint.md`.
 
 **Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi les bornes de pagination sont imposées par le serveur et pas seulement par l'interface.
