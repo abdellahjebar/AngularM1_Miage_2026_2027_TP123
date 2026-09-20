@@ -289,7 +289,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Fichiers effectivement modifiés.** Créé : `docs/tp2/analyse.md`. Aucun code modifié, le backend n'est pas modifié.
 
-**Preuve de fonctionnement.** Commit `e088084`.
+**Preuve de fonctionnement.** Commit `3d19c24`.
 
 **Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Où se trouve chaque étape de l'upload et de la lecture, et les deux flux.
@@ -315,7 +315,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Fichiers effectivement modifiés.** `tracks-page.ts` et `tracks-page.html`. Le backend n'est pas modifié.
 
-**Preuve de fonctionnement.** Commit `d9dd0f4`.
+**Preuve de fonctionnement.** Commit `8750bea`.
 
 **Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi chaque changement de page est une requête au serveur et pourquoi il est interdit de tout charger puis de découper dans Angular.
@@ -342,7 +342,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Fichiers effectivement modifiés.** Créé : `shared/utils/audio-file.ts`. Modifiés : `tracks-page.ts`, `tracks-page.html`, `styles.css` (classe `.hint`). Le backend n'est pas modifié.
 
-**Preuve de fonctionnement.** Commit `1842c05`.
+**Preuve de fonctionnement.** Commit `cc57a29`.
 
 **Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi contrôler le fichier côté frontend **et** côté backend, et pourquoi le premier ne remplace jamais le second.
@@ -369,7 +369,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Fichiers effectivement modifiés.** Créé : `shared/utils/format-date.ts`. Modifiés : `shared/utils/audio-file.ts` (`audioFormat`), `tracks-page.ts`, `tracks-page.html`, `styles.css`. Le backend n'est pas modifié.
 
-**Preuve de fonctionnement.** Commit `595e622`.
+**Preuve de fonctionnement.** Commit `a8db47d`.
 
 **Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi une liste sémantique avec des titres et des noms accessibles aide les lecteurs d'écran et la navigation au clavier.
@@ -401,7 +401,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Fichiers effectivement modifiés.** `tracks-page.ts`, `tracks-page.html`, `styles.css` et `shared/utils/audio-file.ts` (`mediaErrorMessage`). Le backend n'est pas modifié.
 
-**Preuve de fonctionnement.** Commit `63cf2d9`.
+**Preuve de fonctionnement.** Commit `914ac23`.
 
 **Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - La différence entre téléchargement complet d'un `Blob`, buffering du navigateur et streaming côté serveur, et pourquoi ce choix impose un temps de chargement avant la lecture.
@@ -428,7 +428,7 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 
 **Fichiers effectivement modifiés.** Créé : `docs/tp2/checkpoint.md`. Aucun code modifié, le backend n'est pas modifié.
 
-**Preuve de fonctionnement.** Commit `cf72c5e`. Relevé détaillé des requêtes et des réponses : `docs/tp2/checkpoint.md`.
+**Preuve de fonctionnement.** Commit `ec88d61`. Relevé détaillé des requêtes et des réponses : `docs/tp2/checkpoint.md`.
 
 **Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi les bornes de pagination sont imposées par le serveur et pas seulement par l'interface.

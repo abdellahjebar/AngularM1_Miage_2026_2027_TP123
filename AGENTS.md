@@ -72,8 +72,8 @@ Sources : les `AGENTS.md` et `best-practices.md` du frontend et du backend.
 | Préparation (Atlas, démarrage, santé, envoi de fichiers) | fait | — |
 | 0 — Cartographie (TP1) | fait | `7b8adb3`, `docs/tp1/mission0.md`, `login-flow.md` |
 | 1 — Inscription, connexion, profil (TP1) | fait | branche `tp1-auth` : `ce12aff`, `35034e3`, `68af9e8`, `51e4cc2`, `238ce7b`, `bcc89e9` ; `docs/tp1/checkpoint.md`, `mission1.md`, `signal-vs-localstorage.md` |
-| 2 — Bibliothèque paginée (TP2) | fait | branche `tp2-library` : `d9dd0f4` (erreur de liste, pagination cohérente) ; `docs/tp2/analyse.md`, `checkpoint.md` |
-| 3 — Upload et lecture (TP2) | fait | `1842c05` (contrôles avant envoi, états d'envoi), `595e622` (cards), `63cf2d9` (lecteur, révocation de l'ObjectURL) |
+| 2 — Bibliothèque paginée (TP2) | fait | branche `tp2-library` : `8750bea` (erreur de liste, pagination cohérente) ; `docs/tp2/analyse.md`, `checkpoint.md` |
+| 3 — Upload et lecture (TP2) | fait | `cc57a29` (contrôles avant envoi, états d'envoi), `a8db47d` (cards), `914ac23` (lecteur, révocation de l'ObjectURL) |
 | 5, 6, 7 — Suppression, progression, tests (TP3) | à faire | |
 
 ## Maintenance de ce fichier
