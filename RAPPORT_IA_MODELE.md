@@ -268,3 +268,26 @@ Autres consignes données : tout le contenu du dépôt est rédigé en français
 - Répondre aux questions du sujet sans les notes : routes utilisées, chemin de la mise à jour du profil.
 - Expliquer la différence entre Signal et `localStorage` et leur usage combiné.
 - Où voir les traces du backend et quelles lignes apparaissent lors d'un envoi.
+
+## TP2 — Bibliothèque, upload et lecture audio
+
+### Étape 1 — Analyse du flux existant (prérequis, pagination, upload, lecture)
+
+**Objectif.** Vérifier les prérequis du TP2, comparer la pagination à l'énoncé, et identifier où se trouve chaque étape de l'upload et de la lecture, avant toute modification (première partie de la Mission 3), avec les réponses aux questions sur la mémoire, le buffering et le streaming.
+
+**Prompts.** J'ai collé dans l'assistant le texte d'introduction du TP2 (objectif, prérequis, déroulement conseillé), puis « whats the plan » et « go » après la proposition de plan en sept étapes.
+
+**Plan proposé par l'agent.** Vérifier les prérequis (backend, frontend, proxy, connexion, fichiers audio) ; créer la branche `tp2-library` à partir de `tp1-auth` ; relire `tracks-page`, `track.service` et les routes du backend en vérifiant chaque numéro de ligne ; rédiger l'analyse dans `docs/tp2/analyse.md` ; sans modifier de code.
+
+**Vérifications réalisées.** Santé du backend, réponse du frontend, cible du proxy, connexion de démonstration (`200`) et taille des deux fichiers audio (moins de 25 Mo) contrôlées par commande. Numéros de ligne relevés par recherche dans les fichiers avant d'être cités. Les réponses sur le streaming s'appuient sur des lignes précises du code (`res.sendFile`, `diskStorage`, `revokeObjectURL`).
+
+**Erreurs ou propositions rejetées.** Aucune.
+
+**Fichiers effectivement modifiés.** Créé : `docs/tp2/analyse.md`. Aucun code modifié, le backend n'est pas modifié.
+
+**Preuve de fonctionnement.** Commit : [hash à ajouter].
+
+**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer)*
+- Où se trouve chaque étape de l'upload et de la lecture, et les deux flux.
+- Pourquoi une URL directement dans `src` ne reçoit pas l'en-tête `Authorization`.
+- La différence entre téléchargement complet d'un `Blob`, buffering du navigateur et streaming côté serveur.
