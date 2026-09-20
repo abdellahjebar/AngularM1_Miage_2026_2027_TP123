@@ -3,7 +3,8 @@ import { Component, ElementRef, inject, signal, viewChild } from '@angular/core'
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Track } from '../../shared/models/track.model';
 import { TrackService } from '../../shared/services/track.service';
-import { audioFileError, formatSize } from '../../shared/utils/audio-file';
+import { audioFileError, audioFormat, formatSize } from '../../shared/utils/audio-file';
+import { formatDate } from '../../shared/utils/format-date';
 import { httpErrorMessage } from '../../shared/utils/http-error-message';
 
 @Component({
@@ -16,6 +17,8 @@ export class TracksPageComponent {
   private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
   protected readonly formatSize = formatSize;
+  protected readonly formatDate = formatDate;
+  protected readonly audioFormat = audioFormat;
 
   readonly tracks = signal<Track[]>([]);
   readonly page = signal(1);

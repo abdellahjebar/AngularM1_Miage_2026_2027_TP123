@@ -10,6 +10,20 @@ const ALLOWED_AUDIO_TYPES = new Set([
   'audio/x-m4a',
 ]);
 
+const AUDIO_FORMATS: Record<string, string> = {
+  'audio/mpeg': 'MP3',
+  'audio/wav': 'WAV',
+  'audio/x-wav': 'WAV',
+  'audio/ogg': 'OGG',
+  'audio/mp4': 'M4A',
+  'audio/x-m4a': 'M4A',
+};
+
+/** Short format label for a MIME type: MP3, WAV, OGG, M4A. */
+export function audioFormat(mimeType: string): string {
+  return AUDIO_FORMATS[mimeType] ?? mimeType.replace(/^audio\//, '').toUpperCase();
+}
+
 /** Human-readable size: 512 o, 12,5 Ko, 6,1 Mo. */
 export function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} o`;

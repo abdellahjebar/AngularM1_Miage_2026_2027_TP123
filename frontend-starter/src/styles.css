@@ -21,9 +21,16 @@ label { margin: 0.8rem 0; }
 input { padding: 0.75rem; border: 1px solid #b8cbc5; border-radius: 8px; }
 button { padding: 0.7rem 1rem; color: white; background: #1d755e; border: 0; border-radius: 8px; cursor: pointer; }
 button:disabled { opacity: 0.45; }
-.row, .track, .pager { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.track { padding: 0.8rem 0; border-bottom: 1px solid #e1ebe7; }
-.track small { display: block; color: #61756f; }
+.row, .pager { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.8rem; margin: 1rem 0; padding: 0; list-style: none; }
+.cards .empty { grid-column: 1 / -1; color: #61756f; }
+.track-card { display: flex; flex-direction: column; gap: 0.5rem; padding: 1rem; background: #f7faf9; border: 1px solid #e1ebe7; border-radius: 12px; }
+.track-card button { margin-top: auto; }
+.track-card h3 { margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
+.track-card p { margin: 0; color: #4f635d; font-size: 0.85rem; overflow-wrap: anywhere; }
+.track-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.8rem; color: #4f635d; font-size: 0.85rem; }
+.badge { padding: 0.1rem 0.5rem; color: #123d32; background: #dcefe8; border-radius: 999px; font-weight: 600; }
+button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #123d32; outline-offset: 2px; }
 .pager { margin: 1rem 0; }
 audio { width: 100%; }
 .error { color: #a33; }

@@ -39,19 +39,24 @@
       @if (error()) {
         <p class="error" role="alert">{{ error() }}</p>
       }
-      @for (track of tracks(); track track.id) {
-        <div class="track">
-          <div>
-            <b>{{ track.title }}</b>
-            <small>{{ track.originalName }} · {{ track.size }} Ko</small>
-          </div>
-          <button type="button" (click)="play(track)" [attr.aria-label]="'Lire ' + track.title">▶</button>
-        </div>
-      } @empty {
-        @if (!loading() && !error()) {
-          <p>Aucune piste.</p>
+      <ul class="cards" aria-label="Mes pistes">
+        @for (track of tracks(); track track.id) {
+          <li class="track track-card">
+            <h3>{{ track.title }}</h3>
+            <p>{{ track.originalName }}</p>
+            <div class="track-meta">
+              <span class="badge">{{ audioFormat(track.mimeType) }}</span>
+              <span>{{ formatSize(track.size) }}</span>
+              <time [attr.datetime]="track.createdAt">{{ formatDate(track.createdAt) }}</time>
+            </div>
+            <button type="button" (click)="play(track)" [attr.aria-label]="'Lire ' + track.title">▶ Lire</button>
+          </li>
+        } @empty {
+          @if (!loading() && !error()) {
+            <li class="empty">Aucune piste.</li>
+          }
         }
-      }
+      </ul>
       <div class="pager">
         <button type="button" (click)="go(page() - 1)" [disabled]="page() === 1 || loading()">Préc.</button>
         <span>Page {{ page() }} / {{ pages() }}</span>
