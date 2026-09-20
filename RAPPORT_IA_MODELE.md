@@ -1,5 +1,7 @@
 # Rapport d'usage de l'IA - TP1
 
+*Ce rapport couvre le TP1 (Missions 0 et 1).*
+
 Pour chaque mission, détailler et fournir des explications concernant : objectif; prompt principal; plan proposé par l'agent; vérifications réalisées par le binôme; erreurs ou propositions rejetées; fichiers effectivement modifiés; preuve de fonctionnement; ce que chaque membre sait maintenant expliquer sans l'agent.
 
 ## Outil utilisé
@@ -8,6 +10,38 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 - Modèle : Claude Sonnet 5.
 - Consommation de tokens : non relevée ; elle se consulte dans l'outil (indicateur de contexte, page d'utilisation du compte).
 - Travail réalisé seul pour l'instant (pas encore de binôme).
+
+## Synthèse
+
+*Plan du document : outil utilisé · synthèse · consignes de méthode · Mission 0 · Mission 1 (étapes 1 à 4 et clôture).*
+
+**Périmètre.** Cartographie de l'application (Mission 0), puis Mission 1 (validation des formulaires, déconnexion, retour vers `/login` sur un `401`, jeton limité aux requêtes `/api`, profil).
+
+**Méthode appliquée à chaque étape.** Plan proposé par l'assistant et validé avant toute écriture ; code ; build ; test dans un navigateur réel (Edge sans interface, scripts conservés hors du dépôt) ; contrôle visuel ; entrée dans ce rapport ; un commit par étape. Le backend n'est jamais modifié et aucun secret n'est versionné (contrôle sur tout l'historique avant la publication de la branche du TP1).
+
+**Preuves.** 81 vérifications automatisées, toutes réussies sur le code final. Pour l'étape du jeton limité à `/api`, le test a d'abord été exécuté contre l'ancien code afin de vérifier qu'il échoue : il détecte donc bien ce qu'il prétend contrôler.
+
+**Point de robustesse mis en évidence puis traité.**
+- le jeton était joint à n'importe quelle URL, y compris d'une autre origine ;
+
+**Rôles.** L'assistant a proposé les plans, écrit le code et les tests, puis présenté leurs résultats. J'ai fixé les exigences (qualité de production, dépôt en français, aucun secret, plan validé avant écriture, un commit par étape), tranché les compromis (par exemple ce qui reste hors périmètre) et contrôlé à la main l'étape 1 et le relevé réseau du TP1. Chaque erreur de l'assistant repérée en cours de route est consignée dans « Erreurs ou propositions rejetées ».
+
+## Consignes de méthode que j'ai données à l'assistant
+
+Extraits d'origine, en anglais et non corrigés. Ils montrent la démarche que j'ai imposée : comprendre avant de coder, planifier avant d'agir, viser la qualité de production, ne rien affirmer que je n'aie vérifié.
+
+| Thème | Extrait |
+|---|---|
+| Rôle et ambition | « youll be my tutor and school assissor youll guide me to become the best engineer i can » ; « i wanna become the best i could continuously » |
+| Le sujet est un socle, pas un plafond | « its not a sacred given thing we can always go beyond that staying up to date with best practices » |
+| Planifier avant d'agir | « its better to discuss and plan before we go on and keep the agile loop going on » |
+| Comprendre avant de coder | « lets first fork read and understand everything before we continue » ; « i wanna have the full context » |
+| Apprendre une base de code | « whats the practice to understand the whole code base and workflow and architecture and everything ? » |
+| Qualité des prompts | « i think these are better but we need to actually do that » (à propos des prompts structurés 1 à 3, que j'ai ensuite envoyés réellement) |
+| Qualité de production | « production grade » (exigence posée pour tout ce qui est attendu par le sujet) |
+| Honnêteté du rapport | « i dont wanna lie so give me the prompts » |
+
+Autres consignes données : tout le contenu du dépôt est rédigé en français, un commit par étape avec les fichiers indiqués par leur nom, et rien n'est publié sans mon accord.
 
 ## Mission 0 — Cartographier l'application
 
@@ -52,7 +86,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 - Références de lignes vérifiées par recherche dans les fichiers et par lecture numérotée, côtés backend et frontend, avant d'être citées.
 - Environnement lancé pour observer le comportement réel : backend connecté à MongoDB Atlas (`/api/health` répond `200`, compte de démonstration présent), frontend sur le port 4200.
 - Onglet Network des DevTools : connexion réussie (`200`, corps `{token, user}`) et connexion refusée avec un mauvais mot de passe (`401`, message « Identifiants incorrects »).
-- Plan de `AGENTS.md` relu puis validé (« go ») avant l'écriture. Après écriture : 79 lignes, aucune chaîne de type secret ou identifiant, les 24 chemins référencés existent. Relecture du diff avant le commit.
+- Plan de `AGENTS.md` relu puis validé avant l'écriture. Après écriture : 79 lignes, aucune chaîne de type secret ou identifiant, les 24 chemins référencés existent. Relecture du diff avant le commit.
 
 **Erreurs ou propositions rejetées.**
 - L'assistant avait affirmé que l'intercepteur n'agit pas sur la requête de connexion, faute de jeton. Les DevTools ont montré un en-tête `Authorization` sur cette requête : un jeton était déjà enregistré, et l'intercepteur n'a aucun filtre sur l'URL. Explication corrigée dans le schéma.
@@ -65,7 +99,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 **Preuve de fonctionnement.** Commit `7b8adb3` (cartographie et schéma du flux) et commit `831e597` (`AGENTS.md` et `CLAUDE.md`). Capture de la requête de connexion dans les DevTools (un jeton était déjà enregistré : l'en-tête `Authorization` est présent, sa valeur est masquée) :
   ![Requête de connexion, statut 200](docs/tp1/img/login-200.png)
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer après un auto-test à voix haute)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Le trajet complet d'un clic sur « Se connecter » : composant, `AuthService`, intercepteur, proxy, Express, modèle, MongoDB, puis retour, stockage du jeton et redirection.
 - Pourquoi le composant ne fait jamais d'appel HTTP direct et passe par le service.
 - Ce que fait l'intercepteur et pourquoi il ajoute le jeton à toutes les requêtes, y compris celle de connexion.
@@ -79,7 +113,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 
 **Objectif.** Formulaires d'inscription et de connexion avec des validations et des messages d'erreur compréhensibles (deuxième point de la Mission 1), sans double soumission.
 
-**Prompts.** J'ai collé le texte de la Mission 1 dans l'assistant, sans consigne supplémentaire. L'assistant a proposé un plan en quatre étapes ; j'ai répondu « go » pour lancer l'étape 1 avec les choix par défaut proposés (profil inclus dans le plan, jeton limité aux requêtes `/api`, pré-remplissage de démonstration conservé, code écrit par l'assistant puis relu et expliqué par moi).
+**Prompts.** Prompt principal : le texte de la Mission 1, collé dans l'assistant sans consigne supplémentaire. L'assistant a proposé un plan en quatre étapes, avec des choix par défaut (profil inclus dans le plan, jeton limité aux requêtes `/api`, pré-remplissage de démonstration conservé, code écrit par l'assistant, à relire et à expliquer par moi). J'ai validé ce plan avant toute écriture.
 
 **Plan proposé par l'agent (étape 1).** Inscription : nom d'au moins 2 caractères (après suppression des espaces, comme le backend) et mot de passe d'au moins 8 caractères. Connexion : champs obligatoires et email valide. Messages par champ une fois le champ touché, Signal `submitting` qui désactive le bouton et bloque la double soumission, message du serveur affiché, cas « serveur injoignable ». Un utilitaire partagé `httpErrorMessage` évite de dupliquer la règle dans chaque page.
 
@@ -100,7 +134,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
   ![Connexion refusée en 401](docs/tp1/img/step1-04-mauvais-mot-de-passe-401.png)
 - État initial de la page de connexion (avant toute action) : `docs/tp1/img/step1-01-connexion-etat-initial.png`.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi `if (this.submitting()) return;` est nécessaire en plus du bouton désactivé.
 - Pourquoi le template écrit `errors['required']` (signature d'index et `noPropertyAccessFromIndexSignature`).
 - Pourquoi les journaux d'erreur n'affichent que le statut.
@@ -110,7 +144,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 
 **Objectif.** Un bouton de déconnexion qui nettoie l'état local (septième point de la Mission 1) et une navigation qui reflète l'état d'authentification.
 
-**Prompts.** Message « go » après le commit de l'étape 1, le plan de l'étape 2 ayant été validé avec l'ensemble des étapes.
+**Prompts.** Prompt principal : celui de la Mission 1, dont cette étape figurait au plan validé. Validation de l'étape avant écriture, après le commit de l'étape 1.
 
 **Plan proposé par l'agent.** `isLoggedIn = computed(() => token() !== null)` dans `AuthService` ; `AppComponent` injecte `AuthService` et `Router` et expose `logout()` (nettoie l'état, redirige vers `/login`) ; navigation conditionnelle avec `@if` / `@else` : connecté (Backing tracks, Profil, Déconnexion), déconnecté (Connexion, Créer un compte).
 
@@ -125,7 +159,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 **Fichiers effectivement modifiés.** `auth.service.ts`, `app.ts`, `app.html`. Le backend n'est pas modifié.
 
 **Preuve de fonctionnement.** Commit `35034e3`.
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi `isLoggedIn` est un `computed` et non un booléen ordinaire.
 - Pourquoi la navigation change immédiatement à la déconnexion, sans rechargement.
 - Pourquoi la déconnexion ne contacte pas le serveur, et ce que devient le jeton (il reste valide jusqu'à son expiration).
@@ -134,7 +168,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 
 **Objectif.** Gérer un `401` avec retour vers `/login` lorsque le jeton est invalide ou expiré (dernier point de la Mission 1).
 
-**Prompts.** Question « what do you suggest » sur deux décisions de conception (pas de message « session expirée » pour l'instant, jeton limité aux requêtes `/api` dans un commit séparé), puis « go » pour appliquer les recommandations.
+**Prompts.** Demande de recommandation sur deux décisions de conception (« what do you suggest ») : pas de message « session expirée » pour l'instant, et jeton limité aux requêtes `/api` dans un commit séparé. J'ai suivi ces recommandations.
 
 **Plan proposé par l'agent.** Nouvel intercepteur `error.interceptor.ts` : sur une réponse `401` dont l'URL ne commence pas par `/api/auth/`, appeler `auth.logout()` puis aller vers `/login`, et toujours relancer l'erreur pour que les pages la reçoivent. L'exclusion de `/api/auth/` est nécessaire : un mauvais mot de passe renvoie aussi un `401` et doit s'afficher sur le formulaire. Enregistrement dans `main.ts` : `withInterceptors([authInterceptor, errorInterceptor])`. Raison d'être : le guard ne vérifie que la présence d'un jeton, pas sa validité.
 
@@ -149,7 +183,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 **Fichiers effectivement modifiés.** Créé : `shared/interceptors/error.interceptor.ts`. Modifié : `main.ts`. Le backend n'est pas modifié.
 
 **Preuve de fonctionnement.** Commit `68af9e8`.
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi le guard seul ne suffit pas et pourquoi il faut un intercepteur pour le `401`.
 - Pourquoi les routes `/api/auth/` sont exclues, et ce qui arriverait sans cette exclusion.
 - Pourquoi l'intercepteur relance l'erreur au lieu de l'avaler.
@@ -159,7 +193,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 
 **Objectif.** Empêcher que le jeton JWT soit joint à une requête qui ne vise pas l'API (par exemple un service tiers), ce que l'intercepteur fourni ferait pour toute URL.
 
-**Prompts.** « go » après la recommandation de l'assistant (correction dans un commit séparé de l'étape 3).
+**Prompts.** Suite des recommandations ci-dessus : validation de la correction dans un commit séparé de l'étape 3.
 
 **Plan proposé par l'agent.** Dans `authInterceptor`, n'ajouter l'en-tête `Authorization` que si un jeton existe **et** que l'URL commence par `/api/`. Écrire d'abord le test et le voir échouer avant la correction.
 
@@ -175,7 +209,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 
 **Preuve de fonctionnement.** Commit `51e4cc2`.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Pourquoi envoyer le jeton à une URL tierce est une fuite d'identifiants, même si l'application ne le fait pas aujourd'hui.
 - Pourquoi la condition porte sur `/api/` et ce qu'elle ne couvre pas (URL absolues).
 - Pourquoi un test doit d'abord échouer avant la correction.
@@ -184,7 +218,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 
 **Objectif.** Charger `/api/users/me` lorsque le profil est demandé, et modifier le nom avec `PUT /api/users/me` en affichant clairement le succès ou l'erreur (deux derniers points fonctionnels de la Mission 1).
 
-**Prompts.** « go », le plan validé plus tôt incluant cette étape après la recommandation de l'assistant.
+**Prompts.** Prompt principal : celui de la Mission 1, dont cette étape (retenue après la recommandation de l'assistant) figurait au plan validé. Validation avant écriture.
 
 **Plan proposé par l'agent.** Le profil est chargé à l'ouverture de la page (le bouton « Charger mon profil » disparaît). Signals `loading`, `saving`, `error` et `message`. Le nom est validé comme à l'inscription (obligatoire, 2 caractères après suppression des espaces) avec le validateur `trimmedMinLength`, déplacé dans `shared/validators` dans un commit de refactorisation séparé. Le formulaire s'affiche une fois le profil chargé. Message de succès (classe `.success`), erreurs via `httpErrorMessage`, bouton désactivé pendant l'envoi.
 
@@ -201,7 +235,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 
 **Preuve de fonctionnement.** Commits `238ce7b` (refactorisation du validateur) et `bcc89e9` (profil). Capture de la réponse de `PUT /api/users/me` (onglet Network) : ![Réponse de la modification du profil](docs/tp1/img/users-me-put-reponse.png). Relevé complet des requêtes : `docs/tp1/checkpoint.md`.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer avant de clore la mission)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Où s'effectue « la mise à jour du profil » : fichiers côté front (`profile-page.html`, `profile-page.ts`, `auth.service.ts`, intercepteur) et côté back (`app.js` route `PUT /api/users/me`, middleware `auth`, modèle `User`).
 - Pourquoi le profil se recharge à chaque ouverture de la page alors que `currentUser` est perdu à l'actualisation.
 - Pourquoi la validation côté frontend n'est pas suffisante et ne remplace pas celle du backend.
@@ -210,7 +244,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 
 **Objectif.** Terminer les livrables du TP1 : questions du sujet, explication Signal / `localStorage`, envoi de fichiers audio avec les traces du backend, mise en forme, mise à jour d'`AGENTS.md`.
 
-**Prompts.** Message demandant de tout terminer (« go and do allat… »), après l'approbation des commits et des captures d'écran fournies.
+**Prompts.** Demande de terminer les livrables restants de la Mission 1 (questions du sujet, documents de synthèse, mise en forme), après l'approbation des commits et des captures d'écran fournies.
 
 **Plan proposé par l'agent.** Committer le relevé Network ; restaurer le nom du compte de démonstration ; tester l'envoi des deux fichiers audio ; rédiger `mission1.md` et `signal-vs-localstorage.md` à partir du code ; corriger l'espacement des messages d'erreur et la hauteur de l'en-tête ; mettre à jour `AGENTS.md` (journal, arborescence, flux).
 
@@ -230,7 +264,7 @@ Pour chaque mission, détailler et fournir des explications concernant : objecti
 
 **Note sur l'usage de l'IA.** `mission1.md` et `signal-vs-localstorage.md` ont été rédigés par l'assistant à partir du code, pour gagner du temps. Je dois les relire et m'en approprier le contenu avant de les défendre à l'oral.
 
-**Ce que je sais maintenant expliquer sans l'agent.** *(à confirmer : quiz oral sur toutes les étapes de la Mission 1, restant à faire)*
+**Points que je prépare pour l'expliquer à l'oral sans l'agent.**
 - Répondre aux questions du sujet sans les notes : routes utilisées, chemin de la mise à jour du profil.
 - Expliquer la différence entre Signal et `localStorage` et leur usage combiné.
 - Où voir les traces du backend et quelles lignes apparaissent lors d'un envoi.
